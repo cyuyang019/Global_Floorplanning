@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <cfloat>
-#include <stdio.h>
+#include <string>
 #include "parser.h"
 #include "ppsolver.h"
 #include "rgsolver.h"
@@ -10,7 +10,9 @@
 namespace rg = RectGrad;
 
 int main(int argc, char const *argv[]) {
-    rg::Parser parser(argv[1]);
+    std::string inputFileName = argv[1];
+    std::string outputFileName = argv[2];
+    rg::Parser parser(inputFileName);
     rg::GlobalSolver solver;
     solver.readFromParser(parser);
 
@@ -18,33 +20,36 @@ int main(int argc, char const *argv[]) {
     double lr = 5e-4;
     solver.setMaxMovement(0.001);
     solver.setPullWhileOverlap(true);
-    
+
     double punishmentValue = 0.05;
-    double toleranceValue = 0.;
     solver.setPunishment(punishmentValue);
 
     for ( int phase = 1; phase <= 50; phase++ ) {
-        // std::cout << "Phase " << phase << std::endl;
+        // solver.setPunishment(punishmentValue * phase);
         solver.setSizeScalar(phase * 0.02);
-        solver.setOverlapTolaranceLen(toleranceValue * phase * 0.02);
         solver.resetOptimizer();
         for ( int i = 0; i < iteration; i++ ) {
             solver.calcGradient();
             solver.gradientDescent(lr);
         }
+        // solver.currentPosition2txt(parser, outputFileName + "." + std::to_string(phase));
     }
 
+    // for ( int i = 0; i < iteration; i++ ) {
+    //     solver.setPunishment(0.005);
+    //     solver.calcGradient();
+    //     solver.gradientDescent(lr);
+    // }
+
     solver.setPullWhileOverlap(false);
-    solver.setMaxMovement(1e-4);
-    solver.setPunishment(1e6);
-    solver.setOverlapTolaranceLen(0.);
+    solver.setMaxMovement(0.001);
     solver.setSizeScalar(1.);
-    lr = 1e-4;
+    lr = 5e-4;
     int count = 0;
     while ( solver.hasOverlap() ) {
         solver.squeezeToFit();
         solver.resetOptimizer();
-        for ( int i = 0; i < 50; i++ ) {
+        for ( int i = 0; i < 100; i++ ) {
             solver.calcGradient();
             solver.gradientDescent(lr);
         }
@@ -61,7 +66,7 @@ int main(int argc, char const *argv[]) {
         std::cout << "[GlobalSolver] Note: Area Constraint Met.\n";
     }
 
-    solver.currentPosition2txt(parser, argv[2]);
+    solver.currentPosition2txt(parser, outputFileName);
     std::cout << std::fixed;
     std::cout << "[GlobalSolver] Estimated HPWL: " << std::setprecision(2) << solver.calcEstimatedHPWL() << std::endl;
 

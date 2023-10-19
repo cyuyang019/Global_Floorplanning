@@ -20,8 +20,8 @@ namespace RectGrad {
     }
 
     void GlobalSolver::setOutline(int width, int height) {
-        DieWidth = (double) width;
-        DieHeight = (double) height;
+        DieWidth = ( double ) width;
+        DieHeight = ( double ) height;
         xMaxMovement = DieWidth / 4000.;
         yMaxMovement = DieHeight / 4000.;
     }
@@ -92,8 +92,8 @@ namespace RectGrad {
         double scalar = -1.;
         for ( int i = 0; i < connectionNum; i++ ) {
             ConnStruct conn = parser.getConnection(i);
-            if ( (double) conn.value > scalar ) {
-                scalar = (double) conn.value;
+            if ( ( double ) conn.value > scalar ) {
+                scalar = ( double ) conn.value;
             }
         }
         connectNormalize = 1. / scalar;
@@ -108,14 +108,14 @@ namespace RectGrad {
                 else if ( modules[i]->name == conn.m1 )
                     m1 = modules[i];
             }
-            m0->addConnection(m1, (double) conn.value);
-            m1->addConnection(m0, (double) conn.value);
+            m0->addConnection(m1, ( double ) conn.value);
+            m1->addConnection(m0, ( double ) conn.value);
         }
     }
 
     void GlobalSolver::currentPosition2txt(Parser parser, std::string file_name) {
         for ( auto &mod : modules ) {
-            mod->updateCord((int) this->DieWidth, (int) this->DieHeight, sizeScalar);
+            mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, sizeScalar);
         }
         std::ofstream ostream(file_name);
         ostream << "BLOCK " << moduleNum << " CONNECTOIN " << connectionNum << std::endl;
@@ -211,30 +211,36 @@ namespace RectGrad {
                 double pushHeight = ( pushModule->fixed ) ? pushModule->height : pushModule->height * sizeScalar;
                 overlappedWidth = ( curWidth + pushWidth ) / 2.0 - std::abs(x_diff);
                 overlappedHeight = ( curHeight + pushHeight ) / 2.0 - std::abs(y_diff);
-                if ( overlappedWidth <= overlapTolaranceLen || overlappedHeight <= overlapTolaranceLen ) {
+                if ( overlappedWidth <= 0. || overlappedHeight <= 0. ) {
                     continue;
                 }
 
-                if ( overlappedWidth > curModule->width ) {
-                    overlappedWidth = (double) curModule->width;
+                if ( overlappedWidth >= curModule->width ) {
+                    overlappedWidth = ( double ) curModule->width;
+                    // overlappedWidth = 0;
                 }
-                else if ( overlappedWidth > pushModule->width ) {
-                    overlappedWidth = (double) pushModule->width;
+                else if ( overlappedWidth >= pushModule->width ) {
+                    overlappedWidth = ( double ) pushModule->width;
+                    // overlappedWidth = 0;
                 }
 
-                if ( overlappedHeight > curModule->height ) {
-                    overlappedHeight = (double) curModule->height;
+                if ( overlappedHeight >= curModule->height ) {
+                    overlappedHeight = ( double ) curModule->height;
+                    // overlappedHeight = 0;
                 }
-                else if ( overlappedHeight > pushModule->height ) {
-                    overlappedHeight = (double) pushModule->height;
+                else if ( overlappedHeight >= pushModule->height ) {
+                    overlappedHeight = ( double ) pushModule->height;
+                    // overlappedHeight = 0;
                 }
 
                 double x_sign = ( x_diff == 0 ) ? 0 : ( x_diff > 0 ) ? 1. : -1.;
                 double y_sign = ( y_diff == 0 ) ? 0 : ( y_diff > 0 ) ? 1. : -1.;
-                // x_grad += -punishment * x_sign * overlappedHeight / (curModule->width * curModule->height);
-                // y_grad += -punishment * y_sign * overlappedWidth / (curModule->width * curModule->height);
                 x_grad += -punishment * x_sign * overlappedHeight;
                 y_grad += -punishment * y_sign * overlappedWidth;
+                // double x_unitPush = x_sign * overlappedHeight / ( overlappedWidth * overlappedWidth + overlappedHeight * overlappedHeight );
+                // double y_unitPush = y_sign * overlappedWidth / ( overlappedWidth * overlappedWidth + overlappedHeight * overlappedHeight );
+                // x_grad += -punishment * x_unitPush;
+                // y_grad += -punishment * y_unitPush;
 
             }
 
@@ -263,14 +269,14 @@ namespace RectGrad {
             xSecondMoment[i] = 0.999 * xSecondMoment[i] + 0.001 * xGradient[i] * xGradient[i];
             ySecondMoment[i] = 0.999 * ySecondMoment[i] + 0.001 * yGradient[i] * yGradient[i];
 
-            double xFirstMomentHat = xFirstMoment[i] / (1 - std::pow(0.9, timeStep));
-            double yFirstMomentHat = yFirstMoment[i] / (1 - std::pow(0.9, timeStep));
+            double xFirstMomentHat = xFirstMoment[i] / ( 1 - std::pow(0.9, timeStep) );
+            double yFirstMomentHat = yFirstMoment[i] / ( 1 - std::pow(0.9, timeStep) );
 
-            double xSecondMomentHat = xSecondMoment[i] / (1 - std::pow(0.999, timeStep));
-            double ySecondMomentHat = ySecondMoment[i] / (1 - std::pow(0.999, timeStep));
+            double xSecondMomentHat = xSecondMoment[i] / ( 1 - std::pow(0.999, timeStep) );
+            double ySecondMomentHat = ySecondMoment[i] / ( 1 - std::pow(0.999, timeStep) );
 
-            double xMovement = ( lr * xFirstMomentHat / ( std::sqrt(xSecondMomentHat) + 1e-8 )) * DieWidth;
-            double yMovement = ( lr * yFirstMomentHat / ( std::sqrt(ySecondMomentHat) + 1e-8 )) * DieHeight;
+            double xMovement = ( lr * xFirstMomentHat / ( std::sqrt(xSecondMomentHat) + 1e-8 ) ) * DieWidth;
+            double yMovement = ( lr * yFirstMomentHat / ( std::sqrt(ySecondMomentHat) + 1e-8 ) ) * DieHeight;
 
             if ( std::abs(xMovement) > xMaxMovement ) {
                 xMovement = ( xMovement > 0 ) ? xMaxMovement : -xMaxMovement;
@@ -332,7 +338,7 @@ namespace RectGrad {
                 maxConnection = connection;
             }
         }
-        punishment = maxConnection * amplification;
+        punishment = maxConnection * amplification * connectNormalize;
         // std::cout << "Set push force = " << punishment << std::endl;
     }
 
@@ -444,7 +450,7 @@ namespace RectGrad {
                 }
             }
             if ( totalOverlapWidth > 0. && totalOverlapHeight > 0. ) {
-                double aspectRatio = (double) totalOverlapHeight / totalOverlapWidth;
+                double aspectRatio = ( double ) totalOverlapHeight / totalOverlapWidth;
                 if ( aspectRatio > 10. ) {
                     int squeezeWidth = totalOverlapWidth;
                     // std::cout << "Width: " << squeezeWidth << "\n";
@@ -479,11 +485,11 @@ namespace RectGrad {
             }
             if ( squeezeWidthVec[i] > 0. ) {
                 curModule->width -= squeezeWidthVec[i];
-                curModule->height = std::ceil((double) curModule->area / (double) curModule->width);
+                curModule->height = std::ceil(( double ) curModule->area / ( double ) curModule->width);
             }
             else if ( squeezeHeightVec[i] > 0. ) {
                 curModule->height -= squeezeHeightVec[i];
-                curModule->width = std::ceil((double) curModule->area / (double) curModule->height);
+                curModule->width = std::ceil(( double ) curModule->area / ( double ) curModule->height);
             }
             assert(curModule->height * curModule->width >= curModule->area);
             curModule->updateCord(DieWidth, DieHeight, 1.);

@@ -39,7 +39,7 @@ namespace RectGrad {
     struct GlobalModule {
         std::string name;
         double centerX, centerY;
-        int x, y;
+        double x, y;
         int area;
         int width, height;
         bool fixed;

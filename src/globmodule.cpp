@@ -21,8 +21,8 @@ namespace PushPull {
         //std::cout << "GlobalModule Deleted Successfully." << std::endl;
     }
 
-    void GlobalModule::addConnection(GlobalModule* in_module, float in_value) {
-        Connection* nc = new Connection;
+    void GlobalModule::addConnection(GlobalModule *in_module, float in_value) {
+        Connection *nc = new Connection;
         nc->module = in_module;
         nc->value = in_value;
         connections.push_back(nc);
@@ -44,14 +44,14 @@ namespace RectGrad {
         this->centerY = centerY;
         area = in_area;
         fixed = in_fixed;
-        width = std::ceil(std::sqrt((double) area));
-        height = std::ceil(std::sqrt((double) area));
+        width = std::ceil(std::sqrt(( double ) area));
+        height = std::ceil(std::sqrt(( double ) area));
     }
 
     GlobalModule::GlobalModule(std::string in_name, int x, int y, int width, int height, int in_area, bool in_fixed) {
         name = in_name;
-        this->x = x;
-        this->y = y;
+        this->x = ( double ) x;
+        this->y = ( double ) y;
         this->width = width;
         this->height = height;
         area = in_area;
@@ -78,8 +78,12 @@ namespace RectGrad {
             return;
         }
 
-        this->x = (int) ( centerX - width * sizeScalar / 2. );
-        this->y = (int) ( centerY - height * sizeScalar / 2. );
+        // this->x = (int) ( std::round(centerX - width * sizeScalar / 2.) );
+        // this->y = (int) ( std::round(centerY - height * sizeScalar / 2.) );
+
+        this->x = centerX - width * sizeScalar / 2.;
+        this->y = centerY - height * sizeScalar / 2.;
+
         if ( this->x < 0 ) {
             this->x = 0;
         }
@@ -93,8 +97,8 @@ namespace RectGrad {
             this->y = DieHeight - this->height;
         }
 
-        this->centerX = this->x + this->width / 2.;
-        this->centerY = this->y + this->height / 2.;
+        this->centerX = this->x + this->width * sizeScalar / 2.;
+        this->centerY = this->y + this->height * sizeScalar / 2.;
 
         // std::cout << this->name << " " << this->width << " , " << this->height << std::endl;
         // std::cout << this->centerX << " , " << this->centerY << std::endl;
