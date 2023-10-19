@@ -405,21 +405,21 @@ namespace RectGrad {
             mod->updateCord(DieWidth, DieHeight, 1.);
         }
 
-        std::vector<int> squeezeWidthVec(this->moduleNum, 0);
-        std::vector<int> squeezeHeightVec(this->moduleNum, 0);
+        std::vector<double> squeezeWidthVec(this->moduleNum, 0);
+        std::vector<double> squeezeHeightVec(this->moduleNum, 0);
 
         for ( int i = 0; i < this->moduleNum; ++i ) {
             GlobalModule *curModule = modules[i];
             if ( curModule->fixed ) {
                 continue;
             }
-            int totalOverlapWidth = 0.0;
-            int totalOverlapHeight = 0.0;
+            double totalOverlapWidth = 0.0;
+            double totalOverlapHeight = 0.0;
             for ( GlobalModule *tarModule : modules ) {
                 if ( curModule == tarModule ) {
                     continue;
                 }
-                int overlappedWidth, overlappedHeight, x_diff, y_diff;
+                double overlappedWidth, overlappedHeight, x_diff, y_diff;
 
                 x_diff = curModule->centerX - tarModule->centerX;
                 y_diff = curModule->centerY - tarModule->centerY;
@@ -452,14 +452,14 @@ namespace RectGrad {
             if ( totalOverlapWidth > 0. && totalOverlapHeight > 0. ) {
                 double aspectRatio = ( double ) totalOverlapHeight / totalOverlapWidth;
                 if ( aspectRatio > 10. ) {
-                    int squeezeWidth = totalOverlapWidth;
+                    double squeezeWidth = totalOverlapWidth;
                     // std::cout << "Width: " << squeezeWidth << "\n";
                     // curModule->width -= squeezeWidth;
                     // curModule->height = std::ceil(curModule->area / curModule->width);
                     squeezeWidthVec[i] = squeezeWidth;
                 }
                 else if ( aspectRatio < 0.1 ) {
-                    int squeezeHeight = totalOverlapHeight;
+                    double squeezeHeight = totalOverlapHeight;
                     std::cout << "Height: " << squeezeHeight << "\n";
                     // curModule->height -= squeezeHeight;
                     // curModule->width = std::ceil(curModule->area / curModule->height);
@@ -484,11 +484,11 @@ namespace RectGrad {
                 continue;
             }
             if ( squeezeWidthVec[i] > 0. ) {
-                curModule->width -= squeezeWidthVec[i];
+                curModule->width -= std::round(squeezeWidthVec[i]);
                 curModule->height = std::ceil(( double ) curModule->area / ( double ) curModule->width);
             }
             else if ( squeezeHeightVec[i] > 0. ) {
-                curModule->height -= squeezeHeightVec[i];
+                curModule->height -= std::round(squeezeHeightVec[i]);
                 curModule->width = std::ceil(( double ) curModule->area / ( double ) curModule->height);
             }
             assert(curModule->height * curModule->width >= curModule->area);
