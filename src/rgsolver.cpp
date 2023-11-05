@@ -209,28 +209,34 @@ namespace RectGrad {
                 double pushWidth = ( pushModule->fixed ) ? pushModule->width : pushModule->width * sizeScalar;
                 double curHeight = curModule->height * sizeScalar;
                 double pushHeight = ( pushModule->fixed ) ? pushModule->height : pushModule->height * sizeScalar;
-                overlappedWidth = ( curWidth + pushWidth ) / 2.0 - std::abs(x_diff);
-                overlappedHeight = ( curHeight + pushHeight ) / 2.0 - std::abs(y_diff);
+
+                double cur_xl = curModule->centerX - curWidth / 2.;
+                double cur_xr = curModule->centerX + curWidth / 2.;
+                double cur_yd = curModule->centerY - curHeight / 2.;
+                double cur_yu = curModule->centerY + curHeight / 2.;
+                double push_xl = pushModule->centerX - pushWidth / 2.;
+                double push_xr = pushModule->centerX + pushWidth / 2.;
+                double push_yd = pushModule->centerY - pushHeight / 2.;
+                double push_yu = pushModule->centerY + pushHeight / 2.;
+                double max_xl = std::max(cur_xl, push_xl);
+                double min_xr = std::min(cur_xr, push_xr);
+                double max_yd = std::max(cur_yd, push_yd);
+                double min_yu = std::min(cur_yu, push_yu);
+                
+                overlappedWidth = min_xr - max_xl;
+                overlappedHeight = min_yu - max_yd;
                 if ( overlappedWidth <= 0. || overlappedHeight <= 0. ) {
                     continue;
                 }
 
-                if ( overlappedWidth >= curModule->width ) {
-                    overlappedWidth = ( double ) curModule->width;
-                    // overlappedWidth = 0;
-                }
-                else if ( overlappedWidth >= pushModule->width ) {
-                    overlappedWidth = ( double ) pushModule->width;
-                    // overlappedWidth = 0;
-                }
+                bool width_cover = ( overlappedWidth >= curWidth || overlappedWidth >= pushWidth );
+                bool height_cover = ( overlappedHeight >= curHeight || overlappedHeight >= pushHeight );
 
-                if ( overlappedHeight >= curModule->height ) {
-                    overlappedHeight = ( double ) curModule->height;
-                    // overlappedHeight = 0;
+                if ( width_cover && !height_cover ) {
+                    overlappedHeight = 0;
                 }
-                else if ( overlappedHeight >= pushModule->height ) {
-                    overlappedHeight = ( double ) pushModule->height;
-                    // overlappedHeight = 0;
+                else if ( height_cover && !width_cover ) {
+                    overlappedWidth = 0;
                 }
 
                 double x_sign = ( x_diff == 0 ) ? 0 : ( x_diff > 0 ) ? 1. : -1.;
