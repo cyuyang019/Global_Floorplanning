@@ -47,6 +47,7 @@ namespace PushPull {
 namespace RectGrad {
     struct ConnStruct {
         std::vector<std::string> modules;
+        std::vector<GlobalModule *> modulePtrs;
         int value;
         ConnStruct(const std::vector<std::string> &modules, int value) {
             this->modules = modules;

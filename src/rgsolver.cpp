@@ -116,6 +116,9 @@ namespace RectGrad {
                 }
             }
 
+            conn.modulePtrs = connectedModules;
+            connectionList.push_back(conn);
+
             for ( int i = 0; i < connectedModules.size(); ++i ) {
                 std::vector<GlobalModule *> connModules;
                 connModules = connectedModules;
@@ -125,7 +128,7 @@ namespace RectGrad {
         }
     }
 
-    void GlobalSolver::currentPosition2txt(Parser parser, std::string file_name) {
+    void GlobalSolver::currentPosition2txt(std::string file_name) {
         for ( auto &mod : modules ) {
             mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, sizeScalar);
         }
@@ -144,7 +147,7 @@ namespace RectGrad {
             }
         }
         for ( int i = 0; i < connectionNum; i++ ) {
-            ConnStruct conn = parser.getConnection(i);
+            ConnStruct conn = connectionList[i];
             ostream << conn.modules[0] << " ";
             ostream << conn.modules[1] << " ";
             ostream << conn.value << std::endl;
@@ -174,34 +177,70 @@ namespace RectGrad {
 
             // gradient for HPWL
             for ( int j = 0; j < curModule->connections.size(); j++ ) {
-                GlobalModule *pullModule = curModule->connections[j]->modules[0];
                 double pullValue = curModule->connections[j]->value * connectNormalize;
-                double x_diff, y_diff;
+                if ( curModule->connections[j]->modules.size() > 1 ) {
+                    int x_sign = 0, y_sign = 0;
+                    bool x_is_max = true;
+                    bool x_is_min = true;
+                    bool y_is_max = true;
+                    bool y_is_min = true;
+                    for ( auto &pullModule : curModule->connections[j]->modules ) {
+                        if ( pullModule->centerX > curModule->centerX ) {
+                            x_is_max = false;
+                        }
+                        if ( pullModule->centerX < curModule->centerX ) {
+                            x_is_min = false;
+                        }
+                        if ( pullModule->centerY > curModule->centerY ) {
+                            y_is_max = false;
+                        }
+                        if ( pullModule->centerY < curModule->centerY ) {
+                            y_is_min = false;
+                        }
+                    }
+                    if ( x_is_max ) {
+                        ++x_sign;
+                    }
+                    if ( x_is_min ) {
+                        --x_sign;
+                    }
+                    if ( y_is_max ) {
+                        ++y_sign;
+                    }
+                    if ( y_is_min ) {
+                        --y_sign;
+                    }
+                    x_grad += pullValue * x_sign;
+                    y_grad += pullValue * y_sign;
+                }
+                else {
+                    GlobalModule *pullModule = curModule->connections[j]->modules[0];
+                    double x_diff, y_diff;
 
-                x_diff = curModule->centerX - pullModule->centerX;
-                y_diff = curModule->centerY - pullModule->centerY;
-                if ( x_diff == 0 && y_diff == 0 ) {
-                    continue;
+                    x_diff = curModule->centerX - pullModule->centerX;
+                    y_diff = curModule->centerY - pullModule->centerY;
+                    if ( x_diff == 0 && y_diff == 0 ) {
+                        continue;
+                    }
+
+                    double curWidth = curModule->width * sizeScalar;
+                    double pushWidth = ( pullModule->fixed ) ? pullModule->width : pullModule->width * sizeScalar;
+                    double curHeight = curModule->height * sizeScalar;
+                    double pushHeight = ( pullModule->fixed ) ? pullModule->height : pullModule->height * sizeScalar;
+                    double overlappedWidth, overlappedHeight;
+                    overlappedWidth = ( curWidth + pushWidth ) / 2.0 - std::abs(x_diff);
+                    overlappedHeight = ( curHeight + pushHeight ) / 2.0 - std::abs(y_diff);
+
+                    if ( overlappedWidth > overlapTolaranceLen && overlappedHeight > overlapTolaranceLen && !pullWhileOverlap ) {
+                        continue;
+                    }
+
+                    double x_sign = ( x_diff == 0 ) ? 0. : ( x_diff > 0 ) ? 1. : -1.;
+                    double y_sign = ( y_diff == 0 ) ? 0. : ( y_diff > 0 ) ? 1. : -1.;
+                    x_grad += pullValue * x_sign;
+                    y_grad += pullValue * y_sign;
                 }
 
-                double curWidth = curModule->width * sizeScalar;
-                double pushWidth = ( pullModule->fixed ) ? pullModule->width : pullModule->width * sizeScalar;
-                double curHeight = curModule->height * sizeScalar;
-                double pushHeight = ( pullModule->fixed ) ? pullModule->height : pullModule->height * sizeScalar;
-                double overlappedWidth, overlappedHeight;
-                overlappedWidth = ( curWidth + pushWidth ) / 2.0 - std::abs(x_diff);
-                overlappedHeight = ( curHeight + pushHeight ) / 2.0 - std::abs(y_diff);
-
-                if ( overlappedWidth > overlapTolaranceLen && overlappedHeight > overlapTolaranceLen && !pullWhileOverlap ) {
-                    continue;
-                }
-
-                double x_sign = ( x_diff == 0 ) ? 0. : ( x_diff > 0 ) ? 1. : -1.;
-                double y_sign = ( y_diff == 0 ) ? 0. : ( y_diff > 0 ) ? 1. : -1.;
-                x_grad += pullValue * x_sign;
-                y_grad += pullValue * y_sign;
-                // x_grad += pullValue * x_diff;
-                // y_grad += pullValue * y_diff;
             }
 
             // gradient for overlapped area
@@ -323,17 +362,19 @@ namespace RectGrad {
 
     double GlobalSolver::calcEstimatedHPWL() {
         double HPWL = 0;
-        for ( int i = 0; i < moduleNum; i++ ) {
-            GlobalModule *curModule = modules[i];
-            for ( int j = 0; j < curModule->connections.size(); j++ ) {
-                GlobalModule *conModule = curModule->connections[j]->modules[0];
-                double value = curModule->connections[j]->value;
-                double x_diff = std::abs(curModule->centerX - conModule->centerX);
-                double y_diff = std::abs(curModule->centerY - conModule->centerY);
-                HPWL += ( x_diff + y_diff ) * value;
+        for ( int i = 0; i < connectionNum; ++i ) {
+            ConnStruct conn = connectionList[i];
+            double maxX = 0., maxY = 0.;
+            double minX = 1e10, minY = 1e10;
+            for ( auto &mod : conn.modulePtrs ) {
+                maxX = ( mod->centerX > maxX ) ? mod->centerX : maxX;
+                minX = ( mod->centerX < minX ) ? mod->centerX : minX;
+                maxY = ( mod->centerY > maxY ) ? mod->centerY : maxY;
+                minY = ( mod->centerY < minY ) ? mod->centerY : minY;
             }
+            HPWL += ( maxX - minX + maxY - minY ) * conn.value;
         }
-        return HPWL / 2.;
+        return HPWL;
     }
 
     void GlobalSolver::setSizeScalar(double scalar) {

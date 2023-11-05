@@ -19,8 +19,8 @@ modname2pos = {}
 for i in range(2, 2 + block_num):
     ss = fpos[i].split(" ")
     modname = ss[0]
-    x, y = int(ss[2]), int(ss[3])
-    w, h = int(ss[4]), int(ss[5])
+    x, y = float(ss[2]), float(ss[3])
+    w, h = float(ss[4]), float(ss[5])
     modname2pos[modname] = (x + w/2, y + h/2)
 
 

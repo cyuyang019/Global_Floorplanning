@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
     solver.setMaxMovement(0.001);
     solver.setPullWhileOverlap(true);
 
-    double punishmentValue = 0.05;
+    double punishmentValue = 0.5;
     solver.setPunishment(punishmentValue);
 
     for ( int phase = 1; phase <= 50; phase++ ) {
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
             solver.calcGradient();
             solver.gradientDescent(lr);
         }
-        solver.currentPosition2txt(parser, outputFileName + "." + std::to_string(phase));
+        solver.currentPosition2txt(outputFileName + "." + std::to_string(phase));
     }
 
     // for ( int i = 0; i < iteration; i++ ) {
@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]) {
             solver.calcGradient();
             solver.gradientDescent(lr);
         }
-        solver.currentPosition2txt(parser, outputFileName + "." + std::to_string(51));
+        solver.currentPosition2txt(outputFileName + "." + std::to_string(51));
 
         if ( ++count >= 5 ) {
             break;
@@ -67,7 +67,7 @@ int main(int argc, char const *argv[]) {
         std::cout << "[GlobalSolver] Note: Area Constraint Met.\n";
     }
 
-    solver.currentPosition2txt(parser, outputFileName);
+    solver.currentPosition2txt(outputFileName);
     std::cout << std::fixed;
     std::cout << "[GlobalSolver] Estimated HPWL: " << std::setprecision(2) << solver.calcEstimatedHPWL() << std::endl;
 

@@ -45,7 +45,7 @@ namespace RectGrad {
         void addModule(GlobalModule *in_module);
         void addConnection(const std::vector<std::string> &in_modules, double in_value);
         void readFromParser(Parser parser);
-        void currentPosition2txt(Parser parser, std::string file_name);
+        void currentPosition2txt(std::string file_name);
         double calcDeadspace();
         void calcGradient();
         void gradientDescent(double lr);
