@@ -22,6 +22,7 @@ namespace RectGrad {
         double DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
         std::vector<GlobalModule *> modules;
+        std::vector<ConnStruct> connectionList;
         std::vector<double> xGradient, yGradient;
         std::vector<double> xFirstMoment, yFirstMoment;
         std::vector<double> xSecondMoment, ySecondMoment;
@@ -42,7 +43,7 @@ namespace RectGrad {
         void setFixedModuleNum(int num);
         void setConnectionNum(int num);
         void addModule(GlobalModule *in_module);
-        void addConnection(std::string ma, std::string mb, double value);
+        void addConnection(const std::vector<std::string> &in_modules, double in_value);
         void readFromParser(Parser parser);
         void currentPosition2txt(Parser parser, std::string file_name);
         double calcDeadspace();

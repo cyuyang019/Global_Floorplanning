@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 namespace PushPull {
     struct ConnStruct {
@@ -45,12 +46,10 @@ namespace PushPull {
 
 namespace RectGrad {
     struct ConnStruct {
-        std::string m0;
-        std::string m1;
+        std::vector<std::string> modules;
         int value;
-        ConnStruct(std::string m0, std::string m1, int value) {
-            this->m0 = m0;
-            this->m1 = m1;
+        ConnStruct(const std::vector<std::string> &modules, int value) {
+            this->modules = modules;
             this->value = value;
         }
     };

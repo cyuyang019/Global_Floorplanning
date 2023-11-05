@@ -56,17 +56,23 @@ namespace RectGrad {
         modules.push_back(in_module);
     }
 
-    void GlobalSolver::addConnection(std::string ma, std::string mb, double value) {
-        GlobalModule *m0;
-        GlobalModule *m1;
-        for ( int i = 0; i < modules.size(); i++ ) {
-            if ( modules[i]->name == ma )
-                m0 = modules[i];
-            else if ( modules[i]->name == mb )
-                m1 = modules[i];
+    void GlobalSolver::addConnection(const std::vector<std::string> &in_modules, double in_value) {
+        std::vector<GlobalModule *> connectedModules;
+
+        for ( const std::string &modName : in_modules ) {
+            for ( int i = 0; i < modules.size(); i++ ) {
+                if ( modules[i]->name == modName ) {
+                    connectedModules.push_back(modules[i]);
+                }
+            }
         }
-        m0->addConnection(m1, value);
-        m1->addConnection(m0, value);
+
+        for ( int i = 0; i < connectedModules.size(); ++i ) {
+            std::vector<GlobalModule *> connModules;
+            connModules = connectedModules;
+            connModules.erase(connModules.begin() + i);
+            connectedModules[i]->addConnection(connModules, in_value);
+        }
     }
 
     void GlobalSolver::readFromParser(Parser parser) {
@@ -100,16 +106,22 @@ namespace RectGrad {
         for ( int i = 0; i < connectionNum; i++ ) {
             ConnStruct conn = parser.getConnection(i);
 
-            GlobalModule *m0;
-            GlobalModule *m1;
-            for ( int i = 0; i < modules.size(); i++ ) {
-                if ( modules[i]->name == conn.m0 )
-                    m0 = modules[i];
-                else if ( modules[i]->name == conn.m1 )
-                    m1 = modules[i];
+            std::vector<GlobalModule *> connectedModules;
+
+            for ( std::string &modName : conn.modules ) {
+                for ( int i = 0; i < modules.size(); i++ ) {
+                    if ( modules[i]->name == modName ) {
+                        connectedModules.push_back(modules[i]);
+                    }
+                }
             }
-            m0->addConnection(m1, ( double ) conn.value);
-            m1->addConnection(m0, ( double ) conn.value);
+
+            for ( int i = 0; i < connectedModules.size(); ++i ) {
+                std::vector<GlobalModule *> connModules;
+                connModules = connectedModules;
+                connModules.erase(connModules.begin() + i);
+                connectedModules[i]->addConnection(connModules, conn.value);
+            }
         }
     }
 
@@ -133,8 +145,8 @@ namespace RectGrad {
         }
         for ( int i = 0; i < connectionNum; i++ ) {
             ConnStruct conn = parser.getConnection(i);
-            ostream << conn.m0 << " ";
-            ostream << conn.m1 << " ";
+            ostream << conn.modules[0] << " ";
+            ostream << conn.modules[1] << " ";
             ostream << conn.value << std::endl;
         }
         ostream.close();
@@ -162,7 +174,7 @@ namespace RectGrad {
 
             // gradient for HPWL
             for ( int j = 0; j < curModule->connections.size(); j++ ) {
-                GlobalModule *pullModule = curModule->connections[j]->module;
+                GlobalModule *pullModule = curModule->connections[j]->modules[0];
                 double pullValue = curModule->connections[j]->value * connectNormalize;
                 double x_diff, y_diff;
 
@@ -222,7 +234,7 @@ namespace RectGrad {
                 double min_xr = std::min(cur_xr, push_xr);
                 double max_yd = std::max(cur_yd, push_yd);
                 double min_yu = std::min(cur_yu, push_yu);
-                
+
                 overlappedWidth = min_xr - max_xl;
                 overlappedHeight = min_yu - max_yd;
                 if ( overlappedWidth <= 0. || overlappedHeight <= 0. ) {
@@ -314,7 +326,7 @@ namespace RectGrad {
         for ( int i = 0; i < moduleNum; i++ ) {
             GlobalModule *curModule = modules[i];
             for ( int j = 0; j < curModule->connections.size(); j++ ) {
-                GlobalModule *conModule = curModule->connections[j]->module;
+                GlobalModule *conModule = curModule->connections[j]->modules[0];
                 double value = curModule->connections[j]->value;
                 double x_diff = std::abs(curModule->centerX - conModule->centerX);
                 double y_diff = std::abs(curModule->centerY - conModule->centerY);

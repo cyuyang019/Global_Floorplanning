@@ -32,7 +32,7 @@ namespace PushPull {
 
         for ( int i = 0; i < this->softModuleNum; i++ ) {
             istream >> s >> area;
-            GlobalModule mod(s, this->DieWidth / 2., this->DieHeight / 2., (float) area, false);
+            GlobalModule mod(s, this->DieWidth / 2., this->DieHeight / 2., ( float ) area, false);
             modules.push_back(mod);
             //std::cout << "Reading Soft Module " << s << "..." << std::endl;
         }
@@ -41,7 +41,7 @@ namespace PushPull {
 
         for ( int i = 0; i < fixedModuleNum; i++ ) {
             istream >> s >> x >> y >> w >> h;
-            GlobalModule mod(s, x + w / 2., y + h / 2., (float) w * h, true);
+            GlobalModule mod(s, x + w / 2., y + h / 2., ( float ) w * h, true);
             mod.addFixedOutline(x, y, w, h);
             modules.push_back(mod);
             //std::cout << "Reading Fixed Module " << s << "..." << std::endl;
@@ -53,7 +53,7 @@ namespace PushPull {
 
         for ( int i = 0; i < connectionNum; i++ ) {
             istream >> ma >> mb >> value;
-            ConnStruct conn(ma, mb, (float) value);
+            ConnStruct conn(ma, mb, ( float ) value);
             connectionList.push_back(conn);
             //std::cout << "Reading Connection " << ma << "<->" << mb << std::endl;
         }
@@ -94,7 +94,7 @@ namespace PushPull {
         return connectionList[index];
     }
 
-    std::vector<ConnStruct> Parser::getConnectionList() const{
+    std::vector<ConnStruct> Parser::getConnectionList() const {
         return this->connectionList;
     }
 }
@@ -118,6 +118,8 @@ namespace RectGrad {
 
     void Parser::read_input(std::string file_name) {
         std::ifstream istream(file_name);
+        std::istringstream ss;
+        std::string line;
         if ( istream.fail() ) {
             std::cout << file_name << " doesn't exist.\n";
             return;
@@ -125,34 +127,75 @@ namespace RectGrad {
         std::string s, ma, mb;
         int area, x, y, w, h, value;
 
-        istream >> s >> this->DieWidth >> this->DieHeight;
-        istream >> s >> this->softModuleNum;
+        std::getline(istream, line);
+        ss.str(line);
+        ss >> s >> this->DieWidth >> this->DieHeight;
+
+        std::getline(istream, line);
+        ss.str(std::string());
+        ss.clear();
+        ss.str(line);
+        ss >> s >> this->softModuleNum;
 
         for ( int i = 0; i < this->softModuleNum; i++ ) {
-            istream >> s >> area;
+            std::getline(istream, line);
+            ss.str(std::string());
+            ss.clear();
+            ss.str(line);
+            ss >> s >> area;
             GlobalModule mod(s, this->DieWidth / 2., this->DieHeight / 2., area, false);
             modules.push_back(mod);
-            //std::cout << "Reading Soft Module " << s << "..." << std::endl;
+            // std::cout << "Reading Soft Module " << s << "..." << std::endl;
         }
 
-        istream >> s >> this->fixedModuleNum;
+        std::getline(istream, line);
+        ss.str(std::string());
+        ss.clear();
+        ss.str(line);
+        ss >> s >> this->fixedModuleNum;
 
         for ( int i = 0; i < fixedModuleNum; i++ ) {
-            istream >> s >> x >> y >> w >> h;
+            std::getline(istream, line);
+            ss.str(std::string());
+            ss.clear();
+            ss.str(line);
+            ss >> s >> x >> y >> w >> h;
             GlobalModule mod(s, x, y, w, h, w * h, true);
             modules.push_back(mod);
-            //std::cout << "Reading Fixed Module " << s << "..." << std::endl;
+            // std::cout << "Reading Fixed Module " << s << "..." << std::endl;
         }
 
         this->moduleNum = this->softModuleNum + this->fixedModuleNum;
 
-        istream >> s >> this->connectionNum;
+        std::getline(istream, line);
+        ss.str(std::string());
+        ss.clear();
+        ss.str(line);
+        ss >> s >> this->connectionNum;
 
         for ( int i = 0; i < connectionNum; i++ ) {
-            istream >> ma >> mb >> value;
-            ConnStruct conn(ma, mb, value);
+            std::string mod;
+            std::getline(istream, line);
+            ss.str(std::string());
+            ss.clear();
+            std::vector<std::string> modules;
+            ss.str(line);
+
+            while ( ss >> mod ) {
+                modules.push_back(mod);
+            }
+
+            value = std::stoi(modules.back());
+            modules.pop_back();
+
+            ConnStruct conn(modules, value);
             connectionList.push_back(conn);
-            //std::cout << "Reading Connection " << ma << "<->" << mb << std::endl;
+            // std::cout << "Reading Connection " << modules[0] << "<->" << modules[1] << " : " << value << std::endl;
+            // std::cout << "Reading Connection ";
+            // for ( std::string mod : modules ) {
+            //     std::cout << mod << " ";
+            // }
+            // std::cout << " : " << value << std::endl;
         }
 
         istream.close();
@@ -191,7 +234,7 @@ namespace RectGrad {
         return connectionList[index];
     }
 
-    std::vector<ConnStruct> Parser::getConnectionList() const{
+    std::vector<ConnStruct> Parser::getConnectionList() const {
         return this->connectionList;
     }
 } // namespace RectGrad

@@ -10,7 +10,7 @@ namespace PushPull {
     struct GlobalModule;
 
     struct Connection {
-        GlobalModule* module;
+        GlobalModule *module;
         float value;
     };
 
@@ -20,10 +20,10 @@ namespace PushPull {
         float area, radius;
         bool fixed;
         float fx, fy, fw, fh;
-        std::vector<Connection*> connections;
+        std::vector<Connection *> connections;
         GlobalModule(std::string in_name, float in_x, float in_y, float in_area, bool in_fixed);
         ~GlobalModule();
-        void addConnection(GlobalModule* in_module, float in_value);
+        void addConnection(GlobalModule *in_module, float in_value);
         void addFixedOutline(float fx, float fy, float fw, float fh);
     };
 }
@@ -32,7 +32,7 @@ namespace RectGrad {
     struct GlobalModule;
 
     struct Connection {
-        GlobalModule *module;
+        std::vector<GlobalModule *> modules;
         double value;
     };
 
@@ -47,7 +47,7 @@ namespace RectGrad {
         GlobalModule(std::string in_name, double centerX, double centerY, int in_area, bool in_fixed);
         GlobalModule(std::string in_name, int x, int y, int width, int height, int in_area, bool in_fixed);
         ~GlobalModule();
-        void addConnection(GlobalModule *in_module, double in_value);
+        void addConnection(const std::vector<GlobalModule *> &in_modules, double in_value);
         void updateCord(int DieWidth, int DieHeight, double sizeScalar);
     };
 }

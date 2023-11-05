@@ -66,9 +66,9 @@ namespace RectGrad {
         }
     }
 
-    void GlobalModule::addConnection(GlobalModule *in_module, double in_value) {
+    void GlobalModule::addConnection(const std::vector<GlobalModule *> &in_modules, double in_value) {
         Connection *nc = new Connection;
-        nc->module = in_module;
+        nc->modules = in_modules;
         nc->value = in_value;
         connections.push_back(nc);
     }
