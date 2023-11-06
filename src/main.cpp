@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
     solver.setMaxMovement(0.001);
     solver.setPullWhileOverlap(true);
 
-    double punishmentValue = 0.5;
+    double punishmentValue = 1.0;
     solver.setPunishment(punishmentValue);
 
     for ( int phase = 1; phase <= 50; phase++ ) {
