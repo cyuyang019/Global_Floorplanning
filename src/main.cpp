@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
             solver.calcGradient();
             solver.gradientDescent(lr);
         }
-        solver.currentPosition2txt(outputFileName + "." + std::to_string(phase));
+        // solver.currentPosition2txt(outputFileName + "." + std::to_string(phase));
     }
 
     // for ( int i = 0; i < iteration; i++ ) {
@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]) {
             solver.calcGradient();
             solver.gradientDescent(lr);
         }
-        solver.currentPosition2txt(outputFileName + "." + std::to_string(51));
+        // solver.currentPosition2txt(outputFileName + "." + std::to_string(51));
 
         if ( ++count >= 5 ) {
             break;
