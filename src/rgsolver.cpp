@@ -440,6 +440,8 @@ namespace RectGrad {
     }
 
     void GlobalSolver::reportOverlap() {
+        double totalOverlapArea = 0;
+        double totalArea = 0;
         for ( int i = 0; i < moduleNum - 1; i++ ) {
             for ( int j = i + 1; j < moduleNum; j++ ) {
                 GlobalModule *mod1 = modules[i];
@@ -453,10 +455,19 @@ namespace RectGrad {
                 overlappedHeight = ( mod1->height + mod2->height ) / 2.0 - std::abs(y_diff);
 
                 if ( overlappedWidth > 0. && overlappedHeight > 0. ) {
-                    std::cout << "Overlap: " << mod1->name << " & " << mod2->name << " : " << overlappedWidth * overlappedHeight << std::endl;
+                    // std::cout << "Overlap: " << mod1->name << " & " << mod2->name << " : " << overlappedWidth * overlappedHeight << std::endl;
+                    totalOverlapArea += overlappedWidth * overlappedHeight;
                 }
             }
         }
+
+        for ( GlobalModule *&mod : modules ) {
+            totalArea += ( double ) mod->area;
+        }
+
+        std::cout << "Total Area: " << totalArea << std::endl;
+        std::cout << "Overlapped Area: " << totalOverlapArea << std::endl;
+        std::cout << "Overlap Ratio: " << totalOverlapArea / totalArea << std::endl;
     }
 
     void GlobalSolver::squeezeToFit() {
