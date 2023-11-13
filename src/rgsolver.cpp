@@ -446,13 +446,28 @@ namespace RectGrad {
             for ( int j = i + 1; j < moduleNum; j++ ) {
                 GlobalModule *mod1 = modules[i];
                 GlobalModule *mod2 = modules[j];
-                double overlappedWidth, overlappedHeight, x_diff, y_diff;
+                double overlappedWidth, overlappedHeight;
+                
+                double mod1Width = mod1->width * sizeScalar;
+                double mod2Width = ( mod2->fixed ) ? mod2->width : mod2->width * sizeScalar;
+                double mod1Height = mod1->height * sizeScalar;
+                double mod2Height = ( mod2->fixed ) ? mod2->height : mod2->height * sizeScalar;
 
-                x_diff = mod1->centerX - mod2->centerX;
-                y_diff = mod1->centerY - mod2->centerY;
+                double mod1_xl = mod1->centerX - mod1Width / 2.;
+                double mod1_xr = mod1->centerX + mod1Width / 2.;
+                double mod1_yd = mod1->centerY - mod1Height / 2.;
+                double mod1_yu = mod1->centerY + mod1Height / 2.;
+                double mod2_xl = mod2->centerX - mod2Width / 2.;
+                double mod2_xr = mod2->centerX + mod2Width / 2.;
+                double mod2_yd = mod2->centerY - mod2Height / 2.;
+                double mod2_yu = mod2->centerY + mod2Height / 2.;
+                double max_xl = std::max(mod1_xl, mod2_xl);
+                double min_xr = std::min(mod1_xr, mod2_xr);
+                double max_yd = std::max(mod1_yd, mod2_yd);
+                double min_yu = std::min(mod1_yu, mod2_yu);
 
-                overlappedWidth = ( mod1->width + mod2->width ) / 2.0 - std::abs(x_diff);
-                overlappedHeight = ( mod1->height + mod2->height ) / 2.0 - std::abs(y_diff);
+                overlappedWidth = min_xr - max_xl;
+                overlappedHeight = min_yu - max_yd;
 
                 if ( overlappedWidth > 0. && overlappedHeight > 0. ) {
                     // std::cout << "Overlap: " << mod1->name << " & " << mod2->name << " : " << overlappedWidth * overlappedHeight << std::endl;
@@ -462,7 +477,9 @@ namespace RectGrad {
         }
 
         for ( GlobalModule *&mod : modules ) {
-            totalArea += ( double ) mod->area;
+            if ( !mod->fixed ) {
+                totalArea += ( double ) mod->area;
+            }
         }
 
         std::cout << "Total Area: " << totalArea << std::endl;
