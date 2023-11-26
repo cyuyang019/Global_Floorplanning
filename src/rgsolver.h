@@ -57,10 +57,11 @@ namespace RectGrad {
         void setOverlapTolaranceLen(double len);
         void setPullWhileOverlap(bool onoff);
         bool hasOverlap();
-        void reportOverlap();
         void squeezeToFit();
         bool isAreaLegal();
         void resetOptimizer();
+        void reportOverlap();
+        void reportDeadSpace();
     };
 } // namespace RectGrad
 

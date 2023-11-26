@@ -482,9 +482,10 @@ namespace RectGrad {
             }
         }
 
-        std::cout << "Total Area: " << totalArea << std::endl;
+        std::cout << std::fixed;
+        std::cout << "Soft Module Area: " << totalArea << std::endl;
         std::cout << "Overlapped Area: " << totalOverlapArea << std::endl;
-        std::cout << "Overlap Ratio: " << totalOverlapArea / totalArea << std::endl;
+        std::cout << "Overlap Ratio: " << totalOverlapArea / totalArea * 100 << "%" << std::endl;
     }
 
     void GlobalSolver::squeezeToFit() {
@@ -547,7 +548,7 @@ namespace RectGrad {
                 }
                 else if ( aspectRatio < 0.1 ) {
                     double squeezeHeight = totalOverlapHeight;
-                    std::cout << "Height: " << squeezeHeight << "\n";
+                    // std::cout << "Height: " << squeezeHeight << "\n";
                     // curModule->height -= squeezeHeight;
                     // curModule->width = std::ceil(curModule->area / curModule->height);
                     squeezeHeightVec[i] = squeezeHeight;
@@ -601,5 +602,17 @@ namespace RectGrad {
         xSecondMoment.resize(moduleNum, 0.);
         ySecondMoment.resize(moduleNum, 0.);
         timeStep = 0;
+    }
+
+    void GlobalSolver::reportDeadSpace() {
+        double totalArea = DieWidth * DieHeight;
+        double moduleArea = 0;
+        for ( int i = 0; i < moduleNum; i++ ) {
+            moduleArea += modules[i]->area;
+        }
+        std::cout << std::fixed;
+        std::cout << "Chip Area: " << totalArea << std::endl;
+        std::cout << "Module Area: " << moduleArea << std::endl;
+        std::cout << "Dead Space Percentage: " << ( 1. - moduleArea / totalArea ) * 100 << "%" << std::endl;
     }
 } // namespace RectGrad

@@ -37,6 +37,7 @@ def draw_circle(ax, x, y, radius, color):
 
 txt_name = sys.argv[1]
 png_name = sys.argv[2]
+with_line = sys.argv[3]
 fread = open(txt_name, 'r')
 f = fread.read().split("\n")
 
@@ -75,7 +76,7 @@ for block in range(total_block_number):
     if ss[1] == "SOFT":
         x, y, w, h = float(ss[2]), float(ss[3]), float(ss[4]), float(ss[5])
         draw_block(ax, x, y, w, h, color="#FCC")
-        plt.text(x + 5, y + 5, ss[0])
+        plt.text(x + 1, y + 1, ss[0])
         name2pos[ss[0]] = (x + w / 2, y + h / 2)
     else:
         x, y, w, h = float(ss[2]), float(ss[3]), float(ss[4]), float(ss[5])
@@ -93,30 +94,31 @@ for block in range(total_block_number):
         name2pos[ss[0]] = (x + w / 2, y + h / 2)
     i += 1
 
-j = i
-max_value = 1
-min_value = 1e10
-for connection in range(total_connection_number):
-    ss = f[j].split(" ")
-    value = int(ss[2])
-    if value > max_value:
-        max_value = value
-    if value < min_value:
-        min_value = value
-    j += 1
+if with_line == "line":
+    j = i
+    max_value = 1
+    min_value = 1e10
+    for connection in range(total_connection_number):
+        ss = f[j].split(" ")
+        value = int(ss[2])
+        if value > max_value:
+            max_value = value
+        if value < min_value:
+            min_value = value
+        j += 1
 
-for connection in range(total_connection_number):
-    ss = f[i].split(" ")
-    x_values = [name2pos[ss[0]][0], name2pos[ss[1]][0]]
-    y_values = [name2pos[ss[0]][1], name2pos[ss[1]][1]]
-    value = float(ss[2])
-    if min_value == max_value:
-        width = 1
-    else:
-        width = (value - min_value) / (max_value - min_value) * 14 + 1
-    plt.plot(x_values, y_values, color="blue",
-             linestyle="-", linewidth=width, alpha=0.5)
-    i += 1
+    for connection in range(total_connection_number):
+        ss = f[i].split(" ")
+        x_values = [name2pos[ss[0]][0], name2pos[ss[1]][0]]
+        y_values = [name2pos[ss[0]][1], name2pos[ss[1]][1]]
+        value = float(ss[2])
+        if min_value == max_value:
+            width = 1
+        else:
+            width = (value - min_value) / (max_value - min_value) * 14 + 1
+        plt.plot(x_values, y_values, color="blue",
+                linestyle="-", linewidth=width, alpha=0.5)
+        i += 1
 
 # plt.savefig(str(sys.argv[1])[:-4]+".png")
 

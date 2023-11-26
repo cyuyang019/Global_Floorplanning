@@ -19,6 +19,6 @@ Run global floorplanning with `<case>` as input (a directory `outputs` is needed
 Draw the result of `<input_file>` to `<output_image>`:
 
 ``` sh
-python3 utils/draw_rect_layout.py <input_file> <output_image>
+python3 utils/draw_rect_layout.py <input_file> <output_image> <line/noline>
 ```
 

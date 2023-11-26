@@ -73,6 +73,10 @@ int main(int argc, char *argv[]) {
 
     for ( int phase = 1; phase <= 50; phase++ ) {
         // solver.setPunishment(punishmentValue * phase);
+        if ( phase > 1 ) {
+            std::cout << "\033[A\033[2K";
+        }
+        std::cout << "[GlobalSolver] Phase " << phase << " / 50" << std::endl;
         solver.setSizeScalar(phase * 0.02);
         solver.resetOptimizer();
         for ( int i = 0; i < iteration; i++ ) {
@@ -107,8 +111,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // reporting the result
+    // report the result
+    std::cout << "######### Overlap Report ##########" << std::endl;
     solver.reportOverlap();
+    std::cout << std::endl;
+    std::cout << "######## Dead Space Report ########" << std::endl;
+    solver.reportDeadSpace();
+    std::cout << std::endl;
 
     if ( !solver.isAreaLegal() ) {
         std::cout << "[GlobalSolver] ERROR: Area Constraint Violated.\n";
