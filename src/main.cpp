@@ -74,9 +74,9 @@ int main(int argc, char *argv[]) {
     for ( int phase = 1; phase <= 50; phase++ ) {
         // solver.setPunishment(punishmentValue * phase);
         if ( phase > 1 ) {
-            std::cout << "\033[A\033[2K";
+            std::cout << "\r";
         }
-        std::cout << "[GlobalSolver] Phase " << phase << " / 50" << std::endl;
+        std::cout << "[GlobalSolver] Phase " << std::setw(2) << phase << " / 50" << std::flush;
         solver.setSizeScalar(phase * 0.02);
         solver.resetOptimizer();
         for ( int i = 0; i < iteration; i++ ) {
@@ -112,6 +112,7 @@ int main(int argc, char *argv[]) {
     }
 
     // report the result
+    std::cout << std::endl << std::endl;
     std::cout << "######### Overlap Report ##########" << std::endl;
     solver.reportOverlap();
     std::cout << std::endl;
