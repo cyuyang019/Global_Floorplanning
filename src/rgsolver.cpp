@@ -148,8 +148,9 @@ namespace RectGrad {
         }
         for ( int i = 0; i < connectionNum; i++ ) {
             ConnStruct conn = connectionList[i];
-            ostream << conn.modules[0] << " ";
-            ostream << conn.modules[1] << " ";
+            for ( int j = 0; j < conn.modules.size(); ++j ) {
+                ostream << conn.modules[j] << " ";
+            }
             ostream << conn.value << std::endl;
         }
         ostream.close();
