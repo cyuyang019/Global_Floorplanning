@@ -38,26 +38,37 @@ namespace PushPull {
 
 
 namespace RectGrad {
-    GlobalModule::GlobalModule(std::string in_name, double centerX, double centerY, int in_area, bool in_fixed) {
-        name = in_name;
+    GlobalModule::GlobalModule(std::string name, double centerX, double centerY, int width, int height, int area, bool is_fixed) {
+        this->name = name;
         this->centerX = centerX;
         this->centerY = centerY;
-        area = in_area;
-        fixed = in_fixed;
+        this->width = width;
+        this->height = height;
+        this->area = area;
+        fixed = is_fixed;
+    }
+
+    GlobalModule::GlobalModule(std::string name, double centerX, double centerY, int area, bool is_fixed) {
+        this->name = name;
+        this->centerX = centerX;
+        this->centerY = centerY;
+        this->area = area;
+        fixed = is_fixed;
         width = std::ceil(std::sqrt(( double ) area));
         height = std::ceil(std::sqrt(( double ) area));
     }
 
-    GlobalModule::GlobalModule(std::string in_name, int x, int y, int width, int height, int in_area, bool in_fixed) {
-        name = in_name;
+    GlobalModule::GlobalModule(std::string name, int x, int y, int width, int height, int area, bool is_fixed) {
+        this->name = name;
         this->x = ( double ) x;
         this->y = ( double ) y;
         this->width = width;
         this->height = height;
-        area = in_area;
-        fixed = in_fixed;
+        this->area = area;
+        fixed = is_fixed;
         this->centerX = x + width / 2.;
         this->centerY = y + height / 2.;
+        // std::cout << "Fixed Module " << name << " " << x << " , " << y << " , " << width << " , " << height << std::endl;
     }
 
     GlobalModule::~GlobalModule() {

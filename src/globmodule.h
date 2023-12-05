@@ -44,8 +44,12 @@ namespace RectGrad {
         int width, height;
         bool fixed;
         std::vector<Connection *> connections;
-        GlobalModule(std::string in_name, double centerX, double centerY, int in_area, bool in_fixed);
-        GlobalModule(std::string in_name, int x, int y, int width, int height, int in_area, bool in_fixed);
+        // for soft modules with specified width and height
+        GlobalModule(std::string name, double centerX, double centerY, int width, int height, int area, bool is_fixed);
+        // for general soft modules
+        GlobalModule(std::string name, double centerX, double centerY, int area, bool is_fixed);
+        // for fixed modules
+        GlobalModule(std::string name, int x, int y, int width, int height, int area, bool is_fixed);
         ~GlobalModule();
         void addConnection(const std::vector<GlobalModule *> &in_modules, double in_value);
         void updateCord(int DieWidth, int DieHeight, double sizeScalar);

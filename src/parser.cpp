@@ -126,6 +126,7 @@ namespace RectGrad {
         }
         std::string s, ma, mb;
         int area, x, y, w, h, value;
+        std::unordered_multiset<int> used_area;
 
         std::getline(istream, line);
         ss.str(line);
@@ -144,6 +145,16 @@ namespace RectGrad {
             ss.str(line);
             ss >> s >> area;
             GlobalModule mod(s, this->DieWidth / 2., this->DieHeight / 2., area, false);
+
+            if ( used_area.count(area) > 0 ) {
+                int modifiedWidth = ( int ) std::ceil(std::sqrt(( double ) area)) + used_area.count(area);
+                int modifiedHeight = ( int ) std::ceil(( double ) area / modifiedWidth);
+                mod.width = modifiedWidth;
+                mod.height = modifiedHeight;
+                // std::cout << "modifiedWidth: " << modifiedWidth << " modifiedHeight: " << modifiedHeight << std::endl;
+            }
+            used_area.insert(area);
+
             modules.push_back(mod);
             // std::cout << "Reading Soft Module " << s << "..." << std::endl;
         }

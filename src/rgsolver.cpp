@@ -88,10 +88,10 @@ namespace RectGrad {
             GlobalModule copy = parser.getModule(i);
             GlobalModule *newModule;
             if ( copy.fixed ) {
-                newModule = new GlobalModule(copy.name, copy.x, copy.y, copy.width, copy.height, copy.area, copy.fixed);
+                newModule = new GlobalModule(copy.name, ( int ) copy.x, ( int ) copy.y, copy.width, copy.height, copy.area, copy.fixed);
             }
             else {
-                newModule = new GlobalModule(copy.name, copy.centerX, copy.centerY, copy.area, copy.fixed);
+                newModule = new GlobalModule(copy.name, copy.centerX, copy.centerY, copy.width, copy.height, copy.area, copy.fixed);
             }
             this->modules.push_back(newModule);
         }
@@ -447,8 +447,13 @@ namespace RectGrad {
             for ( int j = i + 1; j < moduleNum; j++ ) {
                 GlobalModule *mod1 = modules[i];
                 GlobalModule *mod2 = modules[j];
+
+                if ( mod1->fixed && mod2->fixed ) {
+                    continue;
+                }
+
                 double overlappedWidth, overlappedHeight;
-                
+
                 double mod1Width = mod1->width * sizeScalar;
                 double mod2Width = ( mod2->fixed ) ? mod2->width : mod2->width * sizeScalar;
                 double mod1Height = mod1->height * sizeScalar;
@@ -472,6 +477,9 @@ namespace RectGrad {
 
                 if ( overlappedWidth > 0. && overlappedHeight > 0. ) {
                     // std::cout << "Overlap: " << mod1->name << " & " << mod2->name << " : " << overlappedWidth * overlappedHeight << std::endl;
+                    // std::cout << "Mod1 Width: " << mod1Width << " Height: " << mod1Height << std::endl;
+                    // std::cout << "Mod2 Width: " << mod2Width << " Height: " << mod2Height << std::endl;
+                    // std::cout << std::endl;
                     totalOverlapArea += overlappedWidth * overlappedHeight;
                 }
             }
