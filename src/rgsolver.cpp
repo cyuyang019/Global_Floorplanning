@@ -476,7 +476,7 @@ namespace RectGrad {
                 overlappedHeight = min_yu - max_yd;
 
                 if ( overlappedWidth > 0. && overlappedHeight > 0. ) {
-                    // std::cout << "Overlap: " << mod1->name << " & " << mod2->name << " : " << overlappedWidth * overlappedHeight << std::endl;
+                    std::cout << "Overlap: " << mod1->name << " & " << mod2->name << " : " << overlappedWidth * overlappedHeight << std::endl;
                     // std::cout << "Mod1 Width: " << mod1Width << " Height: " << mod1Height << std::endl;
                     // std::cout << "Mod2 Width: " << mod2Width << " Height: " << mod2Height << std::endl;
                     // std::cout << std::endl;

@@ -28,15 +28,15 @@ int main(int argc, char *argv[]) {
             std::cout << "Usage: " << argv[0] << " [-h] [-i <input>] [-o <output>] [-p <punishment>]\n";
             return 0;
         case 'i':
-            std::cout << "Input file set to " << optarg << std::endl;
+            std::cout << "[GlobalSolver] Note: Input file is set to " << optarg << std::endl;
             inputFileName = optarg;
             break;
         case 'o':
-            std::cout << "Output file set to " << optarg << std::endl;
+            std::cout << "[GlobalSolver] Note: Output file is set to " << optarg << std::endl;
             outputFileName = optarg;
             break;
         case 'p':
-            std::cout << "Punishment set to " << optarg << std::endl;
+            std::cout << "[GlobalSolver] Note: Punishment is set to " << optarg << std::endl;
             punishment = std::stod(optarg);
             break;
         case '?':
@@ -69,6 +69,13 @@ int main(int argc, char *argv[]) {
     solver.setPullWhileOverlap(true);
 
     double punishmentValue = ( punishment > 0. ) ? punishment : 0.05;
+    if ( punishment > 0. ) {
+        punishmentValue = punishment;
+    }
+    else {
+        punishmentValue = 0.05;
+        std::cout << "[GlobalSolver] Note: Punishment not set. Using default value 0.05.\n";
+    }
     solver.setPunishment(punishmentValue);
 
     for ( int phase = 1; phase <= 50; phase++ ) {

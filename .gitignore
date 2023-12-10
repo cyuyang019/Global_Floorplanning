@@ -5,3 +5,4 @@ global_floorplan
 animation/*
 .DS_Store
 .vscode/*
+animate.sh
