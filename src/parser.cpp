@@ -147,7 +147,9 @@ namespace RectGrad {
             GlobalModule mod(s, this->DieWidth / 2., this->DieHeight / 2., area, false);
 
             if ( used_area.count(area) > 0 ) {
-                int modifiedWidth = ( int ) std::ceil(std::sqrt(( double ) area)) + used_area.count(area);
+                bool neg = used_area.count(area) % 2;
+                int stretch = ( neg ) ? -( used_area.count(area) / 2 + 1 ) : used_area.count(area) / 2 + 1;
+                int modifiedWidth = ( int ) std::ceil(std::sqrt(( double ) area)) + stretch;
                 int modifiedHeight = ( int ) std::ceil(( double ) area / modifiedWidth);
                 mod.width = modifiedWidth;
                 mod.height = modifiedHeight;
