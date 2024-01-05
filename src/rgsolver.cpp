@@ -88,10 +88,10 @@ namespace RectGrad {
             GlobalModule *copy = parser.getModule(i);
             GlobalModule *newModule;
             if ( copy->fixed ) {
-                newModule = new GlobalModule(copy->name, ( int ) copy->x, ( int ) copy->y, copy->width, copy->height, copy->area, copy->fixed);
+                newModule = new FixedModule(copy->name, ( int ) copy->x, ( int ) copy->y, copy->width, copy->height, copy->area);
             }
             else {
-                newModule = new GlobalModule(copy->name, copy->centerX, copy->centerY, copy->width, copy->height, copy->area, copy->fixed);
+                newModule = new SoftModule(copy->name, copy->centerX, copy->centerY, copy->width, copy->height, copy->area);
             }
             this->modules.push_back(newModule);
         }

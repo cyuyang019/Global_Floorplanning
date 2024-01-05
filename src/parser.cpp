@@ -152,7 +152,7 @@ namespace RectGrad {
             ss.clear();
             ss.str(line);
             ss >> s >> area;
-            GlobalModule *mod = new GlobalModule(s, this->DieWidth / 2., this->DieHeight / 2., area, false);
+            GlobalModule *mod = new SoftModule(s, this->DieWidth / 2., this->DieHeight / 2., area);
 
             if ( used_area.count(area) > 0 ) {
                 bool neg = used_area.count(area) % 2;
@@ -182,7 +182,7 @@ namespace RectGrad {
             ss.clear();
             ss.str(line);
             ss >> s >> x >> y >> w >> h;
-            GlobalModule *mod = new GlobalModule(s, x, y, w, h, w * h, true);
+            GlobalModule *mod = new FixedModule(s, x, y, w, h, w * h);
             modules.push_back(mod);
             // std::cout << "Reading Fixed Module " << s << "..." << std::endl;
         }

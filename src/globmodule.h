@@ -29,14 +29,16 @@ namespace PushPull {
 }
 
 namespace RectGrad {
-    struct GlobalModule;
+    class GlobalModule;
 
-    struct Connection {
+    class Connection {
+    public:
         std::vector<GlobalModule *> modules;
         double value;
     };
 
-    struct GlobalModule {
+    class GlobalModule {
+    public:
         std::string name;
         double centerX, centerY;
         double x, y;
@@ -44,15 +46,25 @@ namespace RectGrad {
         int width, height;
         bool fixed;
         std::vector<Connection *> connections;
-        // for soft modules with specified width and height
-        GlobalModule(std::string name, double centerX, double centerY, int width, int height, int area, bool is_fixed);
-        // for general soft modules
-        GlobalModule(std::string name, double centerX, double centerY, int area, bool is_fixed);
-        // for fixed modules
-        GlobalModule(std::string name, int x, int y, int width, int height, int area, bool is_fixed);
         ~GlobalModule();
         void addConnection(const std::vector<GlobalModule *> &in_modules, double in_value);
         void updateCord(int DieWidth, int DieHeight, double sizeScalar);
+    };
+
+    class SoftModule : public GlobalModule {
+    public:
+        // for soft modules with specified width and height
+        SoftModule(std::string name, double centerX, double centerY, int width, int height, int area);
+        // for general soft modules
+        SoftModule(std::string name, double centerX, double centerY, int area);
+        ~SoftModule();
+    };
+
+    class FixedModule : public GlobalModule {
+    public:
+        // for fixed modules
+        FixedModule(std::string name, int x, int y, int width, int height, int area);
+        ~FixedModule();
     };
 }
 
