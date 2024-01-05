@@ -85,30 +85,30 @@ namespace RectGrad {
         }
         this->modules.clear();
         for ( int i = 0; i < this->moduleNum; i++ ) {
-            GlobalModule copy = parser.getModule(i);
+            GlobalModule *copy = parser.getModule(i);
             GlobalModule *newModule;
-            if ( copy.fixed ) {
-                newModule = new GlobalModule(copy.name, ( int ) copy.x, ( int ) copy.y, copy.width, copy.height, copy.area, copy.fixed);
+            if ( copy->fixed ) {
+                newModule = new GlobalModule(copy->name, ( int ) copy->x, ( int ) copy->y, copy->width, copy->height, copy->area, copy->fixed);
             }
             else {
-                newModule = new GlobalModule(copy.name, copy.centerX, copy.centerY, copy.width, copy.height, copy.area, copy.fixed);
+                newModule = new GlobalModule(copy->name, copy->centerX, copy->centerY, copy->width, copy->height, copy->area, copy->fixed);
             }
             this->modules.push_back(newModule);
         }
         double scalar = -1.;
         for ( int i = 0; i < connectionNum; i++ ) {
-            ConnStruct conn = parser.getConnection(i);
-            if ( ( double ) conn.value > scalar ) {
-                scalar = ( double ) conn.value;
+            ConnStruct *conn = parser.getConnection(i);
+            if ( ( double ) conn->value > scalar ) {
+                scalar = ( double ) conn->value;
             }
         }
         connectNormalize = 1. / scalar;
         for ( int i = 0; i < connectionNum; i++ ) {
-            ConnStruct conn = parser.getConnection(i);
+            ConnStruct *conn = parser.getConnection(i);
 
             std::vector<GlobalModule *> connectedModules;
 
-            for ( std::string &modName : conn.modules ) {
+            for ( std::string &modName : conn->modules ) {
                 for ( int i = 0; i < modules.size(); i++ ) {
                     if ( modules[i]->name == modName ) {
                         connectedModules.push_back(modules[i]);
@@ -116,14 +116,14 @@ namespace RectGrad {
                 }
             }
 
-            conn.modulePtrs = connectedModules;
-            connectionList.push_back(conn);
+            conn->modulePtrs = connectedModules;
+            connectionList.push_back(*conn);
 
             for ( int i = 0; i < connectedModules.size(); ++i ) {
                 std::vector<GlobalModule *> connModules;
                 connModules = connectedModules;
                 connModules.erase(connModules.begin() + i);
-                connectedModules[i]->addConnection(connModules, conn.value);
+                connectedModules[i]->addConnection(connModules, conn->value);
             }
         }
     }

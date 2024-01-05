@@ -60,8 +60,8 @@ namespace RectGrad {
     private:
         int DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
-        std::vector<GlobalModule> modules;
-        std::vector<ConnStruct> connectionList;
+        std::vector<GlobalModule *> modules;
+        std::vector<ConnStruct *> connectionList;
     public:
         Parser();
         Parser(std::string file_name);
@@ -73,10 +73,8 @@ namespace RectGrad {
         int getFixedModuleNum();
         int getModuleNum();
         int getConnectionNum();
-        GlobalModule getModule(int index);
-        ConnStruct getConnection(int index);
-        std::vector<ConnStruct> getConnectionList() const;
-
+        GlobalModule *getModule(int index);
+        ConnStruct *getConnection(int index);
     };
 } // namespace RectGrad
 

@@ -114,7 +114,14 @@ namespace RectGrad {
         this->read_input(file_name);
     }
 
-    Parser::~Parser() {}
+    Parser::~Parser() {
+        for ( int i = 0; i < modules.size(); ++i ) {
+            delete modules[i];
+        }
+        for ( int i = 0; i < connectionList.size(); ++i ) {
+            delete connectionList[i];
+        }
+    }
 
     void Parser::read_input(std::string file_name) {
         std::ifstream istream(file_name);
@@ -132,6 +139,7 @@ namespace RectGrad {
         ss.str(line);
         ss >> s >> this->DieWidth >> this->DieHeight;
 
+        // Read Soft Modules
         std::getline(istream, line);
         ss.str(std::string());
         ss.clear();
@@ -144,15 +152,15 @@ namespace RectGrad {
             ss.clear();
             ss.str(line);
             ss >> s >> area;
-            GlobalModule mod(s, this->DieWidth / 2., this->DieHeight / 2., area, false);
+            GlobalModule *mod = new GlobalModule(s, this->DieWidth / 2., this->DieHeight / 2., area, false);
 
             if ( used_area.count(area) > 0 ) {
                 bool neg = used_area.count(area) % 2;
                 int stretch = ( neg ) ? -( used_area.count(area) / 2 + 1 ) : used_area.count(area) / 2 + 1;
                 int modifiedWidth = ( int ) std::ceil(std::sqrt(( double ) area)) + stretch;
                 int modifiedHeight = ( int ) std::ceil(( double ) area / modifiedWidth);
-                mod.width = modifiedWidth;
-                mod.height = modifiedHeight;
+                mod->width = modifiedWidth;
+                mod->height = modifiedHeight;
                 // std::cout << "modifiedWidth: " << modifiedWidth << " modifiedHeight: " << modifiedHeight << std::endl;
             }
             used_area.insert(area);
@@ -161,6 +169,7 @@ namespace RectGrad {
             // std::cout << "Reading Soft Module " << s << "..." << std::endl;
         }
 
+        // Read Fixed Modules
         std::getline(istream, line);
         ss.str(std::string());
         ss.clear();
@@ -173,7 +182,7 @@ namespace RectGrad {
             ss.clear();
             ss.str(line);
             ss >> s >> x >> y >> w >> h;
-            GlobalModule mod(s, x, y, w, h, w * h, true);
+            GlobalModule *mod = new GlobalModule(s, x, y, w, h, w * h, true);
             modules.push_back(mod);
             // std::cout << "Reading Fixed Module " << s << "..." << std::endl;
         }
@@ -201,7 +210,7 @@ namespace RectGrad {
             value = std::stoi(modules.back());
             modules.pop_back();
 
-            ConnStruct conn(modules, value);
+            ConnStruct *conn = new ConnStruct(modules, value);
             connectionList.push_back(conn);
             // std::cout << "Reading Connection " << modules[0] << "<->" << modules[1] << " : " << value << std::endl;
             // std::cout << "Reading Connection ";
@@ -239,16 +248,15 @@ namespace RectGrad {
         return this->connectionNum;
     }
 
-    GlobalModule Parser::getModule(int index) {
-        return modules[index];
+    GlobalModule *Parser::getModule(int index) {
+        GlobalModule *newMod = new GlobalModule(*( modules[index] ));
+        return newMod;
     }
 
-    ConnStruct Parser::getConnection(int index) {
-        return connectionList[index];
+    ConnStruct *Parser::getConnection(int index) {
+        ConnStruct *newConn = new ConnStruct(*( connectionList[index] ));
+        return newConn;
     }
 
-    std::vector<ConnStruct> Parser::getConnectionList() const {
-        return this->connectionList;
-    }
 } // namespace RectGrad
 

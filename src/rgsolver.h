@@ -13,12 +13,9 @@
 #include <ctime>
 #include <cassert>
 
-class LFLegaliser;
-
 namespace RectGrad {
     class GlobalSolver {
     private:
-        friend class ::LFLegaliser;
         double DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
         std::vector<GlobalModule *> modules;
