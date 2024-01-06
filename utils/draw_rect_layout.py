@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import math
 import time
-
+import argparse
 
 def draw_block(ax, x, y, width, height, color):
     # color = "#BBB"
@@ -34,10 +34,18 @@ def draw_circle(ax, x, y, radius, color):
         )
     )
 
+# Create the parser and add arguments
+parser = argparse.ArgumentParser(description="This program can draw the layout of the circuit")
+parser.add_argument("txt_name", help="The name of circuit spec file", type=str)
+parser.add_argument("png_name", help="The name of circuit spec file", type=str)
+parser.add_argument("-l", "--line", help="Show connections between blocks", action="store_true")
 
-txt_name = sys.argv[1]
-png_name = sys.argv[2]
-with_line = sys.argv[3]
+# Parse the command line arguments
+args = parser.parse_args()
+
+txt_name = args.txt_name
+png_name = args.png_name
+with_line = args.line
 fread = open(txt_name, 'r')
 f = fread.read().split("\n")
 
@@ -94,13 +102,13 @@ for block in range(total_block_number):
         name2pos[ss[0]] = (x + w / 2, y + h / 2)
     i += 1
 
-if with_line == "line":
+if with_line == True:
     j = i
     max_value = 1
     min_value = 1e10
     for connection in range(total_connection_number):
         ss = f[j].split(" ")
-        value = int(ss[2])
+        value = int(ss[-1])
         if value > max_value:
             max_value = value
         if value < min_value:
@@ -111,7 +119,7 @@ if with_line == "line":
         ss = f[i].split(" ")
         x_values = [name2pos[ss[0]][0], name2pos[ss[1]][0]]
         y_values = [name2pos[ss[0]][1], name2pos[ss[1]][1]]
-        value = float(ss[2])
+        value = float(ss[-1])
         if min_value == max_value:
             width = 1
         else:
