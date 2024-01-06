@@ -10,11 +10,11 @@
 #include <unordered_set>
 
 namespace PushPull {
-    struct ConnStruct {
+    struct ConnectionInfo {
         std::string m0;
         std::string m1;
         float value;
-        ConnStruct(std::string m0, std::string m1, float value) {
+        ConnectionInfo(std::string m0, std::string m1, float value) {
             this->m0 = m0;
             this->m1 = m1;
             this->value = value;
@@ -26,7 +26,7 @@ namespace PushPull {
         float DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
         std::vector<GlobalModule> modules;
-        std::vector<ConnStruct> connectionList;
+        std::vector<ConnectionInfo> connectionList;
     public:
         Parser();
         Parser(std::string file_name);
@@ -39,18 +39,18 @@ namespace PushPull {
         int getModuleNum();
         int getConnectionNum();
         GlobalModule getModule(int index);
-        ConnStruct getConnection(int index);
-        std::vector<ConnStruct> getConnectionList() const;
+        ConnectionInfo getConnection(int index);
+        std::vector<ConnectionInfo> getConnectionList() const;
     };
 }
 
 
 namespace RectGrad {
-    struct ConnStruct {
+    struct ConnectionInfo {
         std::vector<std::string> modules;
         std::vector<GlobalModule *> modulePtrs;
         int value;
-        ConnStruct(const std::vector<std::string> &modules, int value) {
+        ConnectionInfo(const std::vector<std::string> &modules, int value) {
             this->modules = modules;
             this->value = value;
         }
@@ -61,7 +61,7 @@ namespace RectGrad {
         int DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
         std::vector<GlobalModule *> modules;
-        std::vector<ConnStruct *> connectionList;
+        std::vector<ConnectionInfo *> connectionList;
     public:
         Parser();
         Parser(std::string file_name);
@@ -74,7 +74,7 @@ namespace RectGrad {
         int getModuleNum();
         int getConnectionNum();
         GlobalModule *getModule(int index);
-        ConnStruct *getConnection(int index);
+        ConnectionInfo *getConnection(int index);
     };
 } // namespace RectGrad
 

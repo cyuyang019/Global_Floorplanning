@@ -14,9 +14,8 @@ namespace RectGrad {
     }
 
     GlobalSolver::~GlobalSolver() {
-        for ( int i = 0; i < modules.size(); i++ ) {
-            delete modules[i];
-        }
+        // do nothing
+        // dynamic memory will be freed by parser
     }
 
     void GlobalSolver::setOutline(int width, int height) {
@@ -75,7 +74,7 @@ namespace RectGrad {
         }
     }
 
-    void GlobalSolver::readFromParser(Parser parser) {
+    void GlobalSolver::readFromParser(Parser &parser) {
         setOutline(parser.getDieWidth(), parser.getDieHeight());
         setSoftModuleNum(parser.getSoftModuleNum());
         setFixedModuleNum(parser.getFixedModuleNum());
@@ -85,47 +84,18 @@ namespace RectGrad {
         }
         this->modules.clear();
         for ( int i = 0; i < this->moduleNum; i++ ) {
-            GlobalModule *copy = parser.getModule(i);
-            GlobalModule *newModule;
-            if ( copy->fixed ) {
-                newModule = new FixedModule(copy->name, ( int ) copy->x, ( int ) copy->y, copy->width, copy->height, copy->area);
-            }
-            else {
-                newModule = new SoftModule(copy->name, copy->centerX, copy->centerY, copy->width, copy->height, copy->area);
-            }
+            GlobalModule *newModule = parser.getModule(i);
             this->modules.push_back(newModule);
         }
         double scalar = -1.;
         for ( int i = 0; i < connectionNum; i++ ) {
-            ConnStruct *conn = parser.getConnection(i);
+            ConnectionInfo *conn = parser.getConnection(i);
             if ( ( double ) conn->value > scalar ) {
                 scalar = ( double ) conn->value;
             }
+            this->connectionList.push_back(conn);
         }
         connectNormalize = 1. / scalar;
-        for ( int i = 0; i < connectionNum; i++ ) {
-            ConnStruct *conn = parser.getConnection(i);
-
-            std::vector<GlobalModule *> connectedModules;
-
-            for ( std::string &modName : conn->modules ) {
-                for ( int i = 0; i < modules.size(); i++ ) {
-                    if ( modules[i]->name == modName ) {
-                        connectedModules.push_back(modules[i]);
-                    }
-                }
-            }
-
-            conn->modulePtrs = connectedModules;
-            connectionList.push_back(*conn);
-
-            for ( int i = 0; i < connectedModules.size(); ++i ) {
-                std::vector<GlobalModule *> connModules;
-                connModules = connectedModules;
-                connModules.erase(connModules.begin() + i);
-                connectedModules[i]->addConnection(connModules, conn->value);
-            }
-        }
     }
 
     void GlobalSolver::currentPosition2txt(std::string file_name) {
@@ -147,11 +117,11 @@ namespace RectGrad {
             }
         }
         for ( int i = 0; i < connectionNum; i++ ) {
-            ConnStruct conn = connectionList[i];
-            for ( int j = 0; j < conn.modules.size(); ++j ) {
-                ostream << conn.modules[j] << " ";
+            ConnectionInfo *conn = connectionList[i];
+            for ( int j = 0; j < conn->modules.size(); ++j ) {
+                ostream << conn->modules[j] << " ";
             }
-            ostream << conn.value << std::endl;
+            ostream << conn->value << std::endl;
         }
         ostream.close();
     }
@@ -364,16 +334,16 @@ namespace RectGrad {
     double GlobalSolver::calcEstimatedHPWL() {
         double HPWL = 0;
         for ( int i = 0; i < connectionNum; ++i ) {
-            ConnStruct conn = connectionList[i];
+            ConnectionInfo *conn = connectionList[i];
             double maxX = 0., maxY = 0.;
             double minX = 1e10, minY = 1e10;
-            for ( auto &mod : conn.modulePtrs ) {
+            for ( auto &mod : conn->modulePtrs ) {
                 maxX = ( mod->centerX > maxX ) ? mod->centerX : maxX;
                 minX = ( mod->centerX < minX ) ? mod->centerX : minX;
                 maxY = ( mod->centerY > maxY ) ? mod->centerY : maxY;
                 minY = ( mod->centerY < minY ) ? mod->centerY : minY;
             }
-            HPWL += ( maxX - minX + maxY - minY ) * conn.value;
+            HPWL += ( maxX - minX + maxY - minY ) * conn->value;
         }
         return HPWL;
     }

@@ -89,7 +89,7 @@ namespace RectGrad {
         Connection *nc = new Connection;
         nc->modules = in_modules;
         nc->value = in_value;
-        connections.push_back(nc);
+        this->connections.push_back(nc);
     }
 
     void GlobalModule::updateCord(int DieWidth, int DieHeight, double sizeScalar) {

@@ -79,7 +79,7 @@ namespace PushPull {
             this->modules.push_back(newModule);
         }
         for ( int i = 0; i < connectionNum; i++ ) {
-            ConnStruct conn = parser.getConnection(i);
+            ConnectionInfo conn = parser.getConnection(i);
 
             GlobalModule* m0;
             GlobalModule* m1;

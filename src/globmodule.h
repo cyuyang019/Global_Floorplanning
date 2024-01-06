@@ -53,6 +53,7 @@ namespace RectGrad {
 
     class SoftModule : public GlobalModule {
     public:
+        SoftModule() {}
         // for soft modules with specified width and height
         SoftModule(std::string name, double centerX, double centerY, int width, int height, int area);
         // for general soft modules
@@ -62,6 +63,7 @@ namespace RectGrad {
 
     class FixedModule : public GlobalModule {
     public:
+        FixedModule() {}
         // for fixed modules
         FixedModule(std::string name, int x, int y, int width, int height, int area);
         ~FixedModule();

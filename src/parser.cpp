@@ -53,7 +53,7 @@ namespace PushPull {
 
         for ( int i = 0; i < connectionNum; i++ ) {
             istream >> ma >> mb >> value;
-            ConnStruct conn(ma, mb, ( float ) value);
+            ConnectionInfo conn(ma, mb, ( float ) value);
             connectionList.push_back(conn);
             //std::cout << "Reading Connection " << ma << "<->" << mb << std::endl;
         }
@@ -90,11 +90,11 @@ namespace PushPull {
         return modules[index];
     }
 
-    ConnStruct Parser::getConnection(int index) {
+    ConnectionInfo Parser::getConnection(int index) {
         return connectionList[index];
     }
 
-    std::vector<ConnStruct> Parser::getConnectionList() const {
+    std::vector<ConnectionInfo> Parser::getConnectionList() const {
         return this->connectionList;
     }
 }
@@ -116,10 +116,16 @@ namespace RectGrad {
 
     Parser::~Parser() {
         for ( int i = 0; i < modules.size(); ++i ) {
-            delete modules[i];
+            if ( modules[i] != nullptr ) {
+                delete modules[i];
+                modules[i] = nullptr;
+            }
         }
         for ( int i = 0; i < connectionList.size(); ++i ) {
-            delete connectionList[i];
+            if ( connectionList[i] != nullptr ) {
+                delete connectionList[i];
+                connectionList[i] = nullptr;
+            }
         }
     }
 
@@ -210,7 +216,7 @@ namespace RectGrad {
             value = std::stoi(modules.back());
             modules.pop_back();
 
-            ConnStruct *conn = new ConnStruct(modules, value);
+            ConnectionInfo *conn = new ConnectionInfo(modules, value);
             connectionList.push_back(conn);
             // std::cout << "Reading Connection " << modules[0] << "<->" << modules[1] << " : " << value << std::endl;
             // std::cout << "Reading Connection ";
@@ -218,6 +224,29 @@ namespace RectGrad {
             //     std::cout << mod << " ";
             // }
             // std::cout << " : " << value << std::endl;
+        }
+
+        for ( int i = 0; i < connectionNum; i++ ) {
+            ConnectionInfo *conn = connectionList[i];
+
+            std::vector<GlobalModule *> connectedModules;
+
+            for ( std::string &modName : conn->modules ) {
+                for ( int i = 0; i < modules.size(); i++ ) {
+                    if ( modules[i]->name == modName ) {
+                        connectedModules.push_back(modules[i]);
+                    }
+                }
+            }
+
+            conn->modulePtrs = connectedModules;
+
+            for ( int i = 0; i < connectedModules.size(); ++i ) {
+                std::vector<GlobalModule *> connModules;
+                connModules = connectedModules;
+                connModules.erase(connModules.begin() + i);
+                connectedModules[i]->addConnection(connModules, conn->value);
+            }
         }
 
         istream.close();
@@ -249,12 +278,11 @@ namespace RectGrad {
     }
 
     GlobalModule *Parser::getModule(int index) {
-        GlobalModule *newMod = new GlobalModule(*( modules[index] ));
-        return newMod;
+        return modules[index];
     }
 
-    ConnStruct *Parser::getConnection(int index) {
-        ConnStruct *newConn = new ConnStruct(*( connectionList[index] ));
+    ConnectionInfo *Parser::getConnection(int index) {
+        ConnectionInfo *newConn = new ConnectionInfo(*( connectionList[index] ));
         return newConn;
     }
 
