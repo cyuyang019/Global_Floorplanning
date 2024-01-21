@@ -350,6 +350,9 @@ namespace RectGrad {
 
     void GlobalSolver::setSizeScalar(double scalar) {
         sizeScalar = scalar;
+        for ( GlobalModule *mod: modules ) {
+            mod->scaleSize(scalar);
+        }
     }
 
     void GlobalSolver::setPunishment(double force) {
@@ -510,9 +513,6 @@ namespace RectGrad {
 
                 if ( overlappedWidth > 0. && overlappedHeight > 0. ) {
                     totalOverlapWidth += overlappedWidth;
-                    // std::cout << curModule->centerX << " " << tarModule->centerX << " ";
-                    // std::cout << curModule->width << " " << tarModule->width << std::endl;
-                    // std::cout << overlappedWidth << std::endl;
                     totalOverlapHeight += overlappedHeight;
                 }
             }
@@ -520,9 +520,6 @@ namespace RectGrad {
                 double aspectRatio = ( double ) totalOverlapHeight / totalOverlapWidth;
                 if ( aspectRatio > 10. ) {
                     double squeezeWidth = totalOverlapWidth;
-                    // std::cout << "Width: " << squeezeWidth << "\n";
-                    // curModule->width -= squeezeWidth;
-                    // curModule->height = std::ceil(curModule->area / curModule->width);
                     squeezeWidthVec[i] = squeezeWidth;
                 }
                 else if ( aspectRatio < 0.1 ) {

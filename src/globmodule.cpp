@@ -38,51 +38,14 @@ namespace PushPull {
 
 
 namespace RectGrad {
-    SoftModule::SoftModule(std::string name, double centerX, double centerY, int width, int height, int area) {
-        this->name = name;
-        this->centerX = centerX;
-        this->centerY = centerY;
-        this->width = width;
-        this->height = height;
-        this->area = area;
-        this->fixed = false;
-    }
-
-    SoftModule::SoftModule(std::string name, double centerX, double centerY, int area) {
-        this->name = name;
-        this->centerX = centerX;
-        this->centerY = centerY;
-        this->area = area;
-        this->width = std::ceil(std::sqrt(( double ) area));
-        this->height = std::ceil(std::sqrt(( double ) area));
-        this->fixed = false;
-    }
-
-    FixedModule::FixedModule(std::string name, int x, int y, int width, int height, int area) {
-        this->name = name;
-        this->x = ( double ) x;
-        this->y = ( double ) y;
-        this->width = width;
-        this->height = height;
-        this->area = area;
-        this->centerX = x + width / 2.;
-        this->centerY = y + height / 2.;
-        this->fixed = true;
-        // std::cout << "Fixed Module " << name << " " << x << " , " << y << " , " << width << " , " << height << std::endl;
+    GlobalModule::GlobalModule() {
+        // Empty
     }
 
     GlobalModule::~GlobalModule() {
         for ( int i = 0; i < connections.size(); i++ ) {
             delete connections[i];
         }
-    }
-
-    SoftModule::~SoftModule() {
-        // Empty
-    }
-
-    FixedModule::~FixedModule() {
-        // Empty
     }
 
     void GlobalModule::addConnection(const std::vector<GlobalModule *> &in_modules, double in_value) {
@@ -122,4 +85,106 @@ namespace RectGrad {
         // std::cout << this->name << " " << this->width << " , " << this->height << std::endl;
         // std::cout << this->centerX << " , " << this->centerY << std::endl;
     }
+
+    void GlobalModule::setWidth(double width) {
+        // Empty
+    }
+    void GlobalModule::setHeight(double height) {
+        // Empty
+    }
+    void GlobalModule::setArea(double area) {
+        // Empty
+    }
+    void GlobalModule::scaleSize(double ratio) {
+        // Empty
+    }
+
+
+    SoftModule::SoftModule() {
+        // Empty
+    }
+
+    SoftModule::SoftModule(std::string name, double centerX, double centerY, int width, int height, int area) {
+        this->name = name;
+        this->centerX = centerX;
+        this->centerY = centerY;
+        this->width = ( double ) width;
+        this->height = ( double ) height;
+        this->area = area;
+        this->fixed = false;
+    }
+
+    SoftModule::SoftModule(std::string name, double centerX, double centerY, int area) {
+        this->name = name;
+        this->centerX = centerX;
+        this->centerY = centerY;
+        this->area = area;
+        this->width = std::ceil(std::sqrt(( double ) area));
+        this->height = std::ceil(std::sqrt(( double ) area));
+        this->fixed = false;
+    }
+
+    SoftModule::~SoftModule() {
+        // Empty
+    }
+
+    void SoftModule::setWidth(double width) {
+        double aspectRatio = this->currentArea / width / width;
+        if ( aspectRatio > 2 ) {
+            aspectRatio = 2;
+        }
+        else if ( aspectRatio < 0.5 ) {
+            aspectRatio = 0.5;
+        }
+        this->width = std::sqrt(this->currentArea / aspectRatio);
+        this->height = this->currentArea / this->width;
+    }
+
+    void SoftModule::setHeight(double height) {
+        double aspectRatio = height * height / this->currentArea;
+        if ( aspectRatio > 2 ) {
+            aspectRatio = 2;
+        }
+        else if ( aspectRatio < 0.5 ) {
+            aspectRatio = 0.5;
+        }
+        this->height = std::sqrt(this->currentArea * aspectRatio);
+        this->width = this->currentArea / this->height;
+    }
+
+    void SoftModule::setArea(double area) {
+        this->currentArea = area;
+        this->width = std::sqrt(area / ( this->width / this->height ));
+        this->height = area / this->width;
+    }
+
+    void SoftModule::scaleSize(double ratio) {
+        this->currentArea = this->area * ratio;
+        this->width = std::sqrt(this->currentArea / ( this->width / this->height ));
+        this->height = this->currentArea / this->width;
+    }
+
+
+    FixedModule::FixedModule() {
+        // Empty
+    }
+
+    FixedModule::FixedModule(std::string name, int x, int y, int width, int height, int area) {
+        this->name = name;
+        this->x = ( double ) x;
+        this->y = ( double ) y;
+        this->width = width;
+        this->height = height;
+        this->area = area;
+        this->centerX = x + width / 2.;
+        this->centerY = y + height / 2.;
+        this->fixed = true;
+        // std::cout << "Fixed Module " << name << " " << x << " , " << y << " , " << width << " , " << height << std::endl;
+    }
+
+    FixedModule::~FixedModule() {
+        // Empty
+    }
+
+
 } // namespace RectGrad
