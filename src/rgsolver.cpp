@@ -5,7 +5,6 @@ namespace RectGrad {
         std::srand(std::time(NULL));
         softModuleNum = 0;
         fixedModuleNum = 0;
-        sizeScalar = 1;
         punishment = 1e4;
         overlapTolaranceLen = 0;
         pullWhileOverlap = false;
@@ -100,7 +99,7 @@ namespace RectGrad {
 
     void GlobalSolver::currentPosition2txt(std::string file_name) {
         for ( auto &mod : modules ) {
-            mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, sizeScalar);
+            mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, 1.);
         }
         std::ofstream ostream(file_name);
         ostream << "BLOCK " << moduleNum << " CONNECTOIN " << connectionNum << std::endl;
@@ -113,7 +112,7 @@ namespace RectGrad {
                 ostream << modules[i]->width << " " << modules[i]->height << std::endl;
             }
             else {
-                ostream << modules[i]->width * sizeScalar << " " << modules[i]->height * sizeScalar << std::endl;
+                ostream << modules[i]->width << " " << modules[i]->height << std::endl;
             }
         }
         for ( int i = 0; i < connectionNum; i++ ) {
@@ -194,10 +193,10 @@ namespace RectGrad {
                         continue;
                     }
 
-                    double curWidth = curModule->width * sizeScalar;
-                    double pushWidth = ( pullModule->fixed ) ? pullModule->width : pullModule->width * sizeScalar;
-                    double curHeight = curModule->height * sizeScalar;
-                    double pushHeight = ( pullModule->fixed ) ? pullModule->height : pullModule->height * sizeScalar;
+                    double curWidth = curModule->width;
+                    double pushWidth = ( pullModule->fixed ) ? pullModule->width : pullModule->width;
+                    double curHeight = curModule->height;
+                    double pushHeight = ( pullModule->fixed ) ? pullModule->height : pullModule->height;
                     double overlappedWidth, overlappedHeight;
                     overlappedWidth = ( curWidth + pushWidth ) / 2.0 - std::abs(x_diff);
                     overlappedHeight = ( curHeight + pushHeight ) / 2.0 - std::abs(y_diff);
@@ -227,10 +226,10 @@ namespace RectGrad {
                     continue;
                 }
 
-                double curWidth = curModule->width * sizeScalar;
-                double pushWidth = ( pushModule->fixed ) ? pushModule->width : pushModule->width * sizeScalar;
-                double curHeight = curModule->height * sizeScalar;
-                double pushHeight = ( pushModule->fixed ) ? pushModule->height : pushModule->height * sizeScalar;
+                double curWidth = curModule->width;
+                double pushWidth = ( pushModule->fixed ) ? pushModule->width : pushModule->width;
+                double curHeight = curModule->height;
+                double pushHeight = ( pushModule->fixed ) ? pushModule->height : pushModule->height;
 
                 double cur_xl = curModule->centerX - curWidth / 2.;
                 double cur_xr = curModule->centerX + curWidth / 2.;
@@ -349,8 +348,7 @@ namespace RectGrad {
     }
 
     void GlobalSolver::setSizeScalar(double scalar) {
-        sizeScalar = scalar;
-        for ( GlobalModule *mod: modules ) {
+        for ( GlobalModule *mod : modules ) {
             mod->scaleSize(scalar);
         }
     }
@@ -427,10 +425,10 @@ namespace RectGrad {
 
                 double overlappedWidth, overlappedHeight;
 
-                double mod1Width = mod1->width * sizeScalar;
-                double mod2Width = ( mod2->fixed ) ? mod2->width : mod2->width * sizeScalar;
-                double mod1Height = mod1->height * sizeScalar;
-                double mod2Height = ( mod2->fixed ) ? mod2->height : mod2->height * sizeScalar;
+                double mod1Width = mod1->width;
+                double mod2Width = ( mod2->fixed ) ? mod2->width : mod2->width;
+                double mod1Height = mod1->height;
+                double mod2Height = ( mod2->fixed ) ? mod2->height : mod2->height;
 
                 double mod1_xl = mod1->centerX - mod1Width / 2.;
                 double mod1_xr = mod1->centerX + mod1Width / 2.;
@@ -489,27 +487,20 @@ namespace RectGrad {
                 if ( curModule == tarModule ) {
                     continue;
                 }
-                double overlappedWidth, overlappedHeight, x_diff, y_diff;
+                double overlappedWidth, overlappedHeight;
 
-                x_diff = curModule->centerX - tarModule->centerX;
-                y_diff = curModule->centerY - tarModule->centerY;
+                double mod1Width = curModule->width;
+                double mod2Width = tarModule->width;
+                double mod1Height = curModule->height;
+                double mod2Height = tarModule->height;
 
-                overlappedWidth = ( curModule->width + tarModule->width ) / 2.0 - std::abs(x_diff);
-                overlappedHeight = ( curModule->height + tarModule->height ) / 2.0 - std::abs(y_diff);
+                double max_xl = std::max(curModule->centerX - mod1Width / 2., tarModule->centerX - mod2Width / 2.);
+                double min_xr = std::min(curModule->centerX + mod1Width / 2., tarModule->centerX + mod2Width / 2.);
+                double max_yd = std::max(curModule->centerY - mod1Height / 2., tarModule->centerY - mod2Height / 2.);
+                double min_yu = std::min(curModule->centerY + mod1Height / 2., tarModule->centerY + mod2Height / 2.);
 
-                if ( overlappedWidth > curModule->width ) {
-                    overlappedWidth = curModule->width;
-                }
-                else if ( overlappedWidth > tarModule->width ) {
-                    overlappedWidth = tarModule->width;
-                }
-
-                if ( overlappedHeight > curModule->height ) {
-                    overlappedHeight = curModule->height;
-                }
-                else if ( overlappedHeight > tarModule->height ) {
-                    overlappedHeight = tarModule->height;
-                }
+                overlappedWidth = min_xr - max_xl;
+                overlappedHeight = min_yu - max_yd;
 
                 if ( overlappedWidth > 0. && overlappedHeight > 0. ) {
                     totalOverlapWidth += overlappedWidth;
@@ -519,15 +510,10 @@ namespace RectGrad {
             if ( totalOverlapWidth > 0. && totalOverlapHeight > 0. ) {
                 double aspectRatio = ( double ) totalOverlapHeight / totalOverlapWidth;
                 if ( aspectRatio > 10. ) {
-                    double squeezeWidth = totalOverlapWidth;
-                    squeezeWidthVec[i] = squeezeWidth;
+                    squeezeWidthVec[i] = totalOverlapWidth;
                 }
                 else if ( aspectRatio < 0.1 ) {
-                    double squeezeHeight = totalOverlapHeight;
-                    // std::cout << "Height: " << squeezeHeight << "\n";
-                    // curModule->height -= squeezeHeight;
-                    // curModule->width = std::ceil(curModule->area / curModule->height);
-                    squeezeHeightVec[i] = squeezeHeight;
+                    squeezeHeightVec[i] = totalOverlapHeight;
                 }
                 // else {
                 //     aspectRatio = 0.2 * std::atan(aspectRatio - 1) + 1;
@@ -548,14 +534,13 @@ namespace RectGrad {
                 continue;
             }
             if ( squeezeWidthVec[i] > 0. ) {
-                curModule->width -= std::round(squeezeWidthVec[i]);
-                curModule->height = std::ceil(( double ) curModule->area / ( double ) curModule->width);
+                curModule->setWidth(curModule->width - squeezeWidthVec[i]);
             }
             else if ( squeezeHeightVec[i] > 0. ) {
-                curModule->height -= std::round(squeezeHeightVec[i]);
-                curModule->width = std::ceil(( double ) curModule->area / ( double ) curModule->height);
+                curModule->setHeight(curModule->height - squeezeHeightVec[i]);
             }
-            assert(curModule->height * curModule->width >= curModule->area);
+            // assert(curModule->height * curModule->width >= curModule->area);
+            assert(0.5 <= curModule->height / curModule->width && curModule->height / curModule->width <= 2);
             curModule->updateCord(DieWidth, DieHeight, 1.);
         }
     }
@@ -566,6 +551,8 @@ namespace RectGrad {
                 continue;
             }
             if ( mod->width * mod->height < mod->area ) {
+                std::cout << "[GlobalSolver] " << mod->name << ": ";
+                std::cout << mod->width << " x " << mod->height << " < " << mod->area << std::endl;
                 return false;
             }
         }

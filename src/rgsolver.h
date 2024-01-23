@@ -24,7 +24,7 @@ namespace RectGrad {
         std::vector<double> xFirstMoment, yFirstMoment;
         std::vector<double> xSecondMoment, ySecondMoment;
         double xMaxMovement, yMaxMovement;
-        double sizeScalar;
+        // double sizeScalar;
         double punishment;
         double connectNormalize;
         double overlapTolaranceLen;

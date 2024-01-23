@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
             punishment = std::stod(optarg);
             break;
         case '?':
-            if ( optopt == 'i' || optopt == 'o' || optopt == 'p')
+            if ( optopt == 'i' || optopt == 'o' || optopt == 'p' )
                 std::cerr << "Option -" << static_cast< char >( optopt ) << " requires an argument." << std::endl;
             else if ( isprint(optopt) )
                 std::cerr << "Unknown option `-" << static_cast< char >( optopt ) << "`." << std::endl;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
             std::cout << "\r";
         }
         std::cout << "[GlobalSolver] Phase " << std::setw(2) << phase << " / 50" << std::flush;
-        solver.setSizeScalar(phase * 0.02);
+        solver.setSizeScalar(phase * 0.02 * phase * 0.02);
         solver.resetOptimizer();
         for ( int i = 0; i < iteration; i++ ) {
             solver.calcGradient();

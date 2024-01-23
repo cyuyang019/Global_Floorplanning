@@ -108,8 +108,8 @@ namespace RectGrad {
         this->name = name;
         this->centerX = centerX;
         this->centerY = centerY;
-        this->width = ( double ) width;
-        this->height = ( double ) height;
+        this->width = width;
+        this->height = height;
         this->area = area;
         this->fixed = false;
     }
@@ -136,8 +136,14 @@ namespace RectGrad {
         else if ( aspectRatio < 0.5 ) {
             aspectRatio = 0.5;
         }
-        this->width = std::sqrt(this->currentArea / aspectRatio);
-        this->height = this->currentArea / this->width;
+        if ( std::abs(this->currentArea - this->area) < 1e-8 ) {
+            this->width = std::round(std::sqrt(this->currentArea / aspectRatio));
+            this->height = std::ceil(this->currentArea / this->width);
+        }
+        else {
+            this->width = std::sqrt(this->currentArea / aspectRatio);
+            this->height = this->currentArea / this->width;
+        }
     }
 
     void SoftModule::setHeight(double height) {
@@ -148,20 +154,32 @@ namespace RectGrad {
         else if ( aspectRatio < 0.5 ) {
             aspectRatio = 0.5;
         }
-        this->height = std::sqrt(this->currentArea * aspectRatio);
-        this->width = this->currentArea / this->height;
+        if ( std::abs(this->currentArea - this->area) < 1e-8 ) {
+            this->height = std::round(std::sqrt(this->currentArea * aspectRatio));
+            this->width = std::ceil(this->currentArea / this->height);
+        }
+        else {
+            this->height = std::sqrt(this->currentArea * aspectRatio);
+            this->width = this->currentArea / this->height;
+        }
     }
 
     void SoftModule::setArea(double area) {
         this->currentArea = area;
-        this->width = std::sqrt(area / ( this->width / this->height ));
+        this->width = std::sqrt(area / ( this->height / this->width ));
         this->height = area / this->width;
     }
 
     void SoftModule::scaleSize(double ratio) {
         this->currentArea = this->area * ratio;
-        this->width = std::sqrt(this->currentArea / ( this->width / this->height ));
-        this->height = this->currentArea / this->width;
+        if ( std::abs(ratio - 1.) < 1e-8 ) {
+            this->width = std::round(std::sqrt(this->currentArea / ( this->height / this->width )));
+            this->height = std::ceil(this->currentArea / this->width);
+        }
+        else {
+            this->width = std::sqrt(this->currentArea / ( this->height / this->width ));
+            this->height = this->currentArea / this->width;
+        }
     }
 
 
