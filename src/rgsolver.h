@@ -56,6 +56,7 @@ namespace RectGrad {
         bool hasOverlap();
         void squeezeToFit();
         bool isAreaLegal();
+        bool isAspectRatioLegal();
         void resetOptimizer();
         void reportOverlap();
         void reportDeadSpace();

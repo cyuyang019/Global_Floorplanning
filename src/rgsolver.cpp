@@ -540,7 +540,7 @@ namespace RectGrad {
                 curModule->setHeight(curModule->height - squeezeHeightVec[i]);
             }
             // assert(curModule->height * curModule->width >= curModule->area);
-            assert(0.5 <= curModule->height / curModule->width && curModule->height / curModule->width <= 2);
+            // assert(0.5 <= curModule->height / curModule->width && curModule->height / curModule->width <= 2);
             curModule->updateCord(DieWidth, DieHeight, 1.);
         }
     }
@@ -553,6 +553,25 @@ namespace RectGrad {
             if ( mod->width * mod->height < mod->area ) {
                 std::cout << "[GlobalSolver] " << mod->name << ": ";
                 std::cout << mod->width << " x " << mod->height << " < " << mod->area << std::endl;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool GlobalSolver::isAspectRatioLegal() {
+        for ( auto &mod : modules ) {
+            if ( mod->fixed ) {
+                continue;
+            }
+            if ( mod->height / mod->width > 2. ) {
+                std::cout << "[GlobalSolver] " << mod->name << ": ";
+                std::cout << mod->height << " / " << mod->width << " > 2" << std::endl;
+                return false;
+            }
+            else if ( mod->height / mod->width < 0.5 ) {
+                std::cout << "[GlobalSolver] " << mod->name << ": ";
+                std::cout << mod->height << " / " << mod->width << " < 0.5" << std::endl;
                 return false;
             }
         }

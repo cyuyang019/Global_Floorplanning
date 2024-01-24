@@ -134,6 +134,13 @@ int main(int argc, char *argv[]) {
         std::cout << "[GlobalSolver] Note: Area Constraint Met.\n";
     }
 
+    if ( !solver.isAspectRatioLegal() ) {
+        std::cout << "[GlobalSolver] ERROR: Aspect Ratio Constraint Violated.\n";
+    }
+    else {
+        std::cout << "[GlobalSolver] Note: Aspect Ratio Constraint Met.\n";
+    }
+
     solver.currentPosition2txt(outputFileName);
     std::cout << std::fixed;
     std::cout << "[GlobalSolver] Estimated HPWL: " << std::setprecision(2) << solver.calcEstimatedHPWL() << std::endl;
