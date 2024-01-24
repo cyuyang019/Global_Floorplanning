@@ -139,20 +139,20 @@ namespace RectGrad {
         if ( std::abs(this->currentArea - this->area) < 1e-8 ) {
             this->width = std::round(std::sqrt(this->currentArea / aspectRatio));
             this->height = std::ceil(this->currentArea / this->width);
+            if ( this->height / this->width > 2. ) {
+                this->height -= 1.;
+                this->width = std::ceil(this->currentArea / this->height);
+            }
+            else if ( this->height / this->width < 0.5 ) {
+                this->width -= 1.;
+                this->height = std::ceil(this->currentArea / this->width);
+            }
         }
         else {
             this->width = std::sqrt(this->currentArea / aspectRatio);
             this->height = this->currentArea / this->width;
             // this->width = std::round(std::sqrt(this->currentArea / aspectRatio));
             // this->height = std::ceil(this->currentArea / this->width);
-        }
-        if ( std::abs(this->currentArea - this->area) < 1e-8 && this->height / this->width > 2. ) {
-            this->height -= 1.;
-            this->width = std::ceil(this->currentArea / this->height);
-        }
-        if ( std::abs(this->currentArea - this->area) < 1e-8 && this->height / this->width < 0.5 ) {
-            this->width -= 1.;
-            this->height = std::ceil(this->currentArea / this->width);
         }
     }
 
@@ -167,20 +167,20 @@ namespace RectGrad {
         if ( std::abs(this->currentArea - this->area) < 1e-8 ) {
             this->height = std::round(std::sqrt(this->currentArea * aspectRatio));
             this->width = std::ceil(this->currentArea / this->height);
+            if ( this->height / this->width > 2. ) {
+                this->height -= 1.;
+                this->width = std::ceil(this->currentArea / this->height);
+            }
+            else if ( this->height / this->width < 0.5 ) {
+                this->width -= 1.;
+                this->height = std::ceil(this->currentArea / this->width);
+            }
         }
         else {
             this->height = std::sqrt(this->currentArea * aspectRatio);
             this->width = this->currentArea / this->height;
             // this->height = std::round(std::sqrt(this->currentArea * aspectRatio));
             // this->width = std::ceil(this->currentArea / this->height);
-        }
-        if ( std::abs(this->currentArea - this->area) < 1e-8 && this->height / this->width > 2. ) {
-            this->height -= 1.;
-            this->width = std::ceil(this->currentArea / this->height);
-        }
-        if ( std::abs(this->currentArea - this->area) < 1e-8 && this->height / this->width < 0.5 ) {
-            this->width -= 1.;
-            this->height = std::ceil(this->currentArea / this->width);
         }
     }
 
@@ -195,20 +195,20 @@ namespace RectGrad {
         if ( std::abs(ratio - 1.) < 1e-8 ) {
             this->width = std::round(std::sqrt(this->currentArea / ( this->height / this->width )));
             this->height = std::ceil(this->currentArea / this->width);
+            if ( this->height / this->width > 2. ) {
+                this->height -= 1.;
+                this->width = std::ceil(this->currentArea / this->height);
+            }
+            else if ( this->height / this->width < 0.5 ) {
+                this->width -= 1.;
+                this->height = std::ceil(this->currentArea / this->width);
+            }
         }
         else {
             this->width = std::sqrt(this->currentArea / ( this->height / this->width ));
             this->height = this->currentArea / this->width;
             // this->width = std::round(std::sqrt(this->currentArea / ( this->height / this->width )));
             // this->height = std::ceil(this->currentArea / this->width);
-        }
-        if ( std::abs(ratio - 1.) < 1e-8 && this->height / this->width > 2. ) {
-            this->height -= 1.;
-            this->width = std::ceil(this->currentArea / this->height);
-        }
-        if ( std::abs(ratio - 1.) < 1e-8 && this->height / this->width < 0.5 ) {
-            this->width -= 1.;
-            this->height = std::ceil(this->currentArea / this->width);
         }
     }
 
