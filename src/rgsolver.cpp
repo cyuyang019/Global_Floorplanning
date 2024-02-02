@@ -8,8 +8,10 @@ namespace RectGrad {
         punishment = 1e4;
         overlapTolaranceLen = 0;
         pullWhileOverlap = false;
+        sizeScalar = 0;
         overlapped = true;
         timeStep = 0;
+        toggle = false;
     }
 
     GlobalSolver::~GlobalSolver() {
@@ -29,6 +31,8 @@ namespace RectGrad {
         moduleNum = softModuleNum + fixedModuleNum;
         xGradient.resize(moduleNum);
         yGradient.resize(moduleNum);
+        wGradient.resize(moduleNum);
+        hGradient.resize(moduleNum);
         xFirstMoment.resize(moduleNum, 0.);
         yFirstMoment.resize(moduleNum, 0.);
         xSecondMoment.resize(moduleNum, 0.);
@@ -40,6 +44,8 @@ namespace RectGrad {
         moduleNum = softModuleNum + fixedModuleNum;
         xGradient.resize(moduleNum);
         yGradient.resize(moduleNum);
+        wGradient.resize(moduleNum);
+        hGradient.resize(moduleNum);
         xFirstMoment.resize(moduleNum, 0.);
         yFirstMoment.resize(moduleNum, 0.);
         xSecondMoment.resize(moduleNum, 0.);
@@ -144,6 +150,8 @@ namespace RectGrad {
             curModule = modules[i];
             double x_grad = 0;
             double y_grad = 0;
+            double w_grad = 0;
+            double h_grad = 0;
 
             // gradient for HPWL
             for ( int j = 0; j < curModule->connections.size(); j++ ) {
@@ -215,9 +223,12 @@ namespace RectGrad {
 
             // gradient for overlapped area
             for ( int j = 0; j < moduleNum; j++ ) {
-                if ( j == i )
+                if ( j == i ) {
                     continue;
+                }
                 GlobalModule *pushModule = modules[j];
+
+                // Calculate the movement gradient
                 double overlappedWidth, overlappedHeight, x_diff, y_diff;
 
                 x_diff = curModule->centerX - pushModule->centerX;
@@ -269,10 +280,16 @@ namespace RectGrad {
                 // x_grad += -punishment * x_unitPush;
                 // y_grad += -punishment * y_unitPush;
 
+                // Calculate the dimension gradient
+                w_grad += overlappedHeight;
+                h_grad += overlappedWidth;
+
             }
 
             xGradient[i] = x_grad;
             yGradient[i] = y_grad;
+            wGradient[i] = w_grad;
+            hGradient[i] = h_grad;
         }
 
         //for ( int i = 0; i < moduleNum; i++ ) {
@@ -280,7 +297,7 @@ namespace RectGrad {
         //}
     }
 
-    void GlobalSolver::gradientDescent(double lr) {
+    void GlobalSolver::gradientDescent(double lr, bool squeeze) {
         timeStep += 1;
         // move soft modules
         GlobalModule *curModule;
@@ -315,6 +332,35 @@ namespace RectGrad {
             curModule->centerX -= xMovement;
             curModule->centerY -= yMovement;
 
+            if ( squeeze ) {
+                if ( toggle ) {
+
+                    if ( curModule->name == "MCL" ) {
+                        std::cout << curModule->height << " -> ";
+                        // std::cout << wGradient[i] << ", " << hGradient[i] << std::endl;
+                        // std::cout << "height: " << lr * hGradient[i] * 2 << std::endl;
+                    }
+
+                    curModule->setHeight(curModule->height - lr * hGradient[i] * 2);
+
+                    if ( curModule->name == "MCL" ) {
+                        std::cout << curModule->height << "\n";
+                    }
+
+                }
+                else {
+                    if ( curModule->name == "MCL" ) {
+                        std::cout << curModule->height << " -> ";
+                        // std::cout << wGradient[i] << ", " << hGradient[i] << std::endl;
+                        // std::cout << "weight: " << lr * wGradient[i] * 2 << std::endl;
+                    }
+                    curModule->setWidth(curModule->width - lr * wGradient[i] * 2);
+                    if ( curModule->name == "MCL" ) {
+                        std::cout << curModule->height << "\n";
+                    }
+                }
+            }
+
             if ( curModule->centerX < curModule->width / 2. ) {
                 curModule->centerX = curModule->width / 2.;
             }
@@ -326,6 +372,36 @@ namespace RectGrad {
             }
             if ( curModule->centerY > DieHeight - curModule->height / 2. ) {
                 curModule->centerY = DieHeight - curModule->height / 2.;
+            }
+        }
+        toggle = !toggle;
+    }
+
+    void GlobalSolver::roundToInteger() {
+        for ( GlobalModule *mod : modules ) {
+            if ( DieWidth > DieHeight ) {
+                mod->width = std::round(mod->width);
+                mod->height = std::ceil(mod->area / mod->width);
+                if ( mod->height / mod->width > 2 ) {
+                    mod->height -= 1.;
+                    mod->width = std::ceil(mod->area / mod->height);
+                }
+                else if ( mod->height / mod->width < 0.5 ) {
+                    mod->width -= 1.;
+                    mod->height = std::ceil(mod->area / mod->width);
+                }
+            }
+            else {
+                mod->height = std::round(mod->height);
+                mod->width = std::ceil(mod->area / mod->height);
+                if ( mod->height / mod->width > 2 ) {
+                    mod->height -= 1.;
+                    mod->width = std::ceil(mod->area / mod->height);
+                }
+                else if ( mod->height / mod->width < 0.5 ) {
+                    mod->width -= 1.;
+                    mod->height = std::ceil(mod->area / mod->width);
+                }
             }
         }
     }
@@ -347,10 +423,110 @@ namespace RectGrad {
         return HPWL;
     }
 
-    void GlobalSolver::setSizeScalar(double scalar) {
+    void GlobalSolver::setSizeScalar(double scalar, bool overlap_aware) {
+        // scalar: new sizeScalar
+        if ( scalar <= sizeScalar || !overlap_aware ) {
+            for ( GlobalModule *mod : modules ) {
+                mod->scaleSize(scalar);
+            }
+            sizeScalar = scalar;
+            return;
+        }
+
+        std::vector<double> areaToGrow(moduleNum);
+        std::vector<double> wGrad(moduleNum);
+        std::vector<double> hGrad(moduleNum);
+        for ( int i = 0; i < moduleNum; ++i ) {
+            areaToGrow[i] = modules[i]->area * ( scalar - sizeScalar );
+        }
+
+        int iterationNum = 4;
+        for ( int it = 0; it < iterationNum; ++it ) {
+            for ( int i = 0; i < moduleNum; ++i ) {
+                if ( modules[i]->fixed ) {
+                    continue;
+                }
+                GlobalModule *curModule = modules[i];
+                // gradient for overlapped area
+                for ( int j = 0; j < moduleNum; j++ ) {
+                    if ( j == i ) {
+                        continue;
+                    }
+                    GlobalModule *pushModule = modules[j];
+
+                    // Calculate the dimension gradient
+                    double overlappedWidth, overlappedHeight;
+
+                    double curWidth = curModule->width;
+                    double pushWidth = ( pushModule->fixed ) ? pushModule->width : pushModule->width;
+                    double curHeight = curModule->height;
+                    double pushHeight = ( pushModule->fixed ) ? pushModule->height : pushModule->height;
+
+                    double max_xl = std::max(curModule->centerX - curWidth / 2., pushModule->centerX - pushWidth / 2.);
+                    double min_xr = std::min(curModule->centerX + curWidth / 2., pushModule->centerX + pushWidth / 2.);
+                    double max_yd = std::max(curModule->centerY - curHeight / 2., pushModule->centerY - pushHeight / 2.);
+                    double min_yu = std::min(curModule->centerY + curHeight / 2., pushModule->centerY + pushHeight / 2.);
+
+                    overlappedWidth = min_xr - max_xl;
+                    overlappedHeight = min_yu - max_yd;
+                    if ( overlappedWidth <= 0. || overlappedHeight <= 0. ) {
+                        continue;
+                    }
+
+                    bool width_cover = ( overlappedWidth >= curWidth || overlappedWidth >= pushWidth );
+                    bool height_cover = ( overlappedHeight >= curHeight || overlappedHeight >= pushHeight );
+
+                    if ( width_cover && !height_cover ) {
+                        overlappedHeight = 0;
+                    }
+                    else if ( height_cover && !width_cover ) {
+                        overlappedWidth = 0;
+                    }
+
+                    wGrad[i] += overlappedHeight;
+                    hGrad[i] += overlappedWidth;
+                }
+            }
+            // grow soft modules
+            for ( int i = 0; i < moduleNum; ++i ) {
+                if ( modules[i]->fixed ) {
+                    continue;
+                }
+                GlobalModule *curModule = modules[i];
+                double curAreaToGrow = areaToGrow[i] / iterationNum;
+                if ( std::abs(hGrad[i] - wGrad[i]) < 1e-5 ) {
+                    if ( it % 2 ) {
+                        // grow width
+                        double growth_width = curAreaToGrow / curModule->height;
+                        curModule->growWidth(growth_width);
+                    }
+                    else {
+                        // grow height
+                        double growth_height = curAreaToGrow / curModule->width;
+                        curModule->growWidth(growth_height);
+                    }
+                }
+                else if ( wGrad[i] < hGrad[i] ) {
+                    // grow width
+                    double growth_width = curAreaToGrow / curModule->height;
+                    curModule->growWidth(growth_width);
+                }
+                else if ( hGrad[i] < wGrad[i] ) {
+                    // grow height
+                    double growth_height = curAreaToGrow / curModule->width;
+                    curModule->growWidth(growth_height);
+                }
+                else {
+                    std::cout << "[GlobalSolver] ERROR: Gradient calculation error." << std::endl;
+                }
+            }
+        }
+
+        // minimize error
         for ( GlobalModule *mod : modules ) {
             mod->scaleSize(scalar);
         }
+        sizeScalar = scalar;
     }
 
     void GlobalSolver::setPunishment(double force) {

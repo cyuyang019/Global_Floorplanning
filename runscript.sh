@@ -14,4 +14,4 @@ else
     python3 utils/draw_rect_layout.py outputs/$1-output.txt outputs/$1.png
 fi
 
-open outputs/$1.png
+# open outputs/$1.png

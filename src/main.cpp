@@ -84,39 +84,35 @@ int main(int argc, char *argv[]) {
             std::cout << "\r";
         }
         std::cout << "[GlobalSolver] Phase " << std::setw(2) << phase << " / 50" << std::flush;
-        solver.setSizeScalar(phase * 0.02 * phase * 0.02);
+        solver.setSizeScalar(phase * 0.02 * phase * 0.02, phase >= 40);
         solver.resetOptimizer();
         for ( int i = 0; i < iteration; i++ ) {
             solver.calcGradient();
-            solver.gradientDescent(lr);
+            solver.gradientDescent(lr, phase >= 40);
         }
-        // solver.currentPosition2txt(outputFileName + "." + std::to_string(phase));
+        solver.currentPosition2txt("animation/" + std::to_string(phase) + ".txt");
     }
 
-    // for ( int i = 0; i < iteration; i++ ) {
-    //     solver.setPunishment(0.005);
-    //     solver.calcGradient();
-    //     solver.gradientDescent(lr);
+    solver.roundToInteger();
+
+    // solver.setPullWhileOverlap(false);
+    // solver.setMaxMovement(0.001);
+    // solver.setSizeScalar(1.);
+    // lr = 5e-4;
+    // int count = 0;
+    // while ( solver.hasOverlap() ) {
+    //     solver.squeezeToFit();
+    //     solver.resetOptimizer();
+    //     for ( int i = 0; i < 100; i++ ) {
+    //         solver.calcGradient();
+    //         solver.gradientDescent(lr);
+    //     }
+    //     solver.currentPosition2txt("animation/51.txt");
+
+    //     if ( ++count >= 5 ) {
+    //         break;
+    //     }
     // }
-
-    solver.setPullWhileOverlap(false);
-    solver.setMaxMovement(0.001);
-    solver.setSizeScalar(1.);
-    lr = 5e-4;
-    int count = 0;
-    while ( solver.hasOverlap() ) {
-        solver.squeezeToFit();
-        solver.resetOptimizer();
-        for ( int i = 0; i < 100; i++ ) {
-            solver.calcGradient();
-            solver.gradientDescent(lr);
-        }
-        // solver.currentPosition2txt(outputFileName + "." + std::to_string(51));
-
-        if ( ++count >= 5 ) {
-            break;
-        }
-    }
 
     // report the result
     std::cout << std::endl << std::endl;

@@ -57,6 +57,8 @@ namespace RectGrad {
         void updateCord(int DieWidth, int DieHeight, double sizeScalar);
         virtual void setWidth(double width);
         virtual void setHeight(double height);
+        virtual void growWidth(double width_to_grow);
+        virtual void growHeight(double height_to_grow);
         virtual void setArea(double area);
         virtual void scaleSize(double ratio);
     };
@@ -74,6 +76,8 @@ namespace RectGrad {
         // Member function
         void setWidth(double width) override;
         void setHeight(double height) override;
+        void growWidth(double width_to_grow) override;
+        void growHeight(double height_to_grow) override;
         void setArea(double area) override;
         void scaleSize(double ratio) override;
     };
