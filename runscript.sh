@@ -1,9 +1,11 @@
 make
 
-if [ "$2" == "" ]; then
+if [[ "$2" == "" && "$3" == "" ]]; then
     ./global_floorplan -i inputs/$1-input.txt -o outputs/$1-output.txt | tee log/$1.log
-else
+elif [[ "$3" == "" ]]; then
     ./global_floorplan -i inputs/$1-input.txt -o outputs/$1-output.txt -p $2| tee log/$1.log
+else
+    ./global_floorplan -i inputs/$1-input.txt -o outputs/$1-output.txt -p $2 -a $3| tee log/$1.log
 fi
 
 Case=$(echo "$1" | cut -c 1)

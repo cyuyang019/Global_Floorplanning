@@ -5,7 +5,8 @@ namespace RectGrad {
         std::srand(std::time(NULL));
         softModuleNum = 0;
         fixedModuleNum = 0;
-        punishment = 1e4;
+        punishment = 0.05;
+        maxAspectRatio = 2.;
         overlapTolaranceLen = 0;
         pullWhileOverlap = false;
         sizeScalar = 0;
@@ -382,11 +383,11 @@ namespace RectGrad {
             if ( DieWidth > DieHeight ) {
                 mod->width = std::round(mod->width);
                 mod->height = std::ceil(mod->area / mod->width);
-                if ( mod->height / mod->width > 2 ) {
+                if ( mod->height / mod->width > maxAspectRatio ) {
                     mod->height -= 1.;
                     mod->width = std::ceil(mod->area / mod->height);
                 }
-                else if ( mod->height / mod->width < 0.5 ) {
+                else if ( mod->height / mod->width < 1 / maxAspectRatio ) {
                     mod->width -= 1.;
                     mod->height = std::ceil(mod->area / mod->width);
                 }
@@ -394,11 +395,11 @@ namespace RectGrad {
             else {
                 mod->height = std::round(mod->height);
                 mod->width = std::ceil(mod->area / mod->height);
-                if ( mod->height / mod->width > 2 ) {
+                if ( mod->height / mod->width > maxAspectRatio ) {
                     mod->height -= 1.;
                     mod->width = std::ceil(mod->area / mod->height);
                 }
-                else if ( mod->height / mod->width < 0.5 ) {
+                else if ( mod->height / mod->width < 1 / maxAspectRatio ) {
                     mod->width -= 1.;
                     mod->height = std::ceil(mod->area / mod->width);
                 }
@@ -547,6 +548,13 @@ namespace RectGrad {
         }
         punishment = maxConnection * amplification * connectNormalize;
         // std::cout << "Set push force = " << punishment << std::endl;
+    }
+
+    void GlobalSolver::setMaxAspectRatio(double aspect_ratio) {
+        maxAspectRatio = aspect_ratio;
+        for ( GlobalModule *mod : modules ) {
+            mod->setMaxAspectRatio(aspect_ratio);
+        }
     }
 
     void GlobalSolver::setMaxMovement(double ratio) {
@@ -740,14 +748,14 @@ namespace RectGrad {
             if ( mod->fixed ) {
                 continue;
             }
-            if ( mod->height / mod->width > 2. ) {
+            if ( mod->height / mod->width > maxAspectRatio ) {
                 std::cout << "[GlobalSolver] " << mod->name << ": ";
-                std::cout << mod->height << " / " << mod->width << " > 2" << std::endl;
+                std::cout << mod->height << " / " << mod->width << " > " << maxAspectRatio << std::endl;
                 return false;
             }
-            else if ( mod->height / mod->width < 0.5 ) {
+            else if ( mod->height / mod->width < 1. / maxAspectRatio ) {
                 std::cout << "[GlobalSolver] " << mod->name << ": ";
-                std::cout << mod->height << " / " << mod->width << " < 0.5" << std::endl;
+                std::cout << mod->height << " / " << mod->width << " < " << 1. / maxAspectRatio << std::endl;
                 return false;
             }
         }

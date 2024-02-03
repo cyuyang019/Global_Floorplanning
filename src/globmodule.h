@@ -45,6 +45,7 @@ namespace RectGrad {
         int area;
         double currentArea;
         double width, height;
+        double maxAspectRatio;
         bool fixed;
         std::vector<Connection *> connections;
 
@@ -57,6 +58,7 @@ namespace RectGrad {
         void updateCord(int DieWidth, int DieHeight, double sizeScalar);
         virtual void setWidth(double width);
         virtual void setHeight(double height);
+        virtual void setMaxAspectRatio(double aspect_ratio);
         virtual void growWidth(double width_to_grow);
         virtual void growHeight(double height_to_grow);
         virtual void setArea(double area);
@@ -76,6 +78,7 @@ namespace RectGrad {
         // Member function
         void setWidth(double width) override;
         void setHeight(double height) override;
+        void setMaxAspectRatio(double aspect_ratio) override;
         void growWidth(double width_to_grow) override;
         void growHeight(double height_to_grow) override;
         void setArea(double area) override;

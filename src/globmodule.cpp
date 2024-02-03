@@ -92,6 +92,9 @@ namespace RectGrad {
     void GlobalModule::setHeight(double height) {
         // Empty
     }
+    void GlobalModule::setMaxAspectRatio(double aspect_ratio) {
+        // Empty
+    }
     void GlobalModule::growWidth(double width_to_grow) {
         // Empty
     }
@@ -118,6 +121,7 @@ namespace RectGrad {
         this->height = height;
         this->area = area;
         this->fixed = false;
+        this->maxAspectRatio = 2.;
     }
 
     SoftModule::SoftModule(std::string name, double centerX, double centerY, int area) {
@@ -128,6 +132,7 @@ namespace RectGrad {
         this->width = std::ceil(std::sqrt(( double ) area));
         this->height = std::ceil(std::sqrt(( double ) area));
         this->fixed = false;
+        this->maxAspectRatio = 2.;
     }
 
     SoftModule::~SoftModule() {
@@ -135,53 +140,61 @@ namespace RectGrad {
     }
 
     void SoftModule::setWidth(double width) {
+        double maxAR = this->maxAspectRatio;
         this->width = width;
         this->height = this->currentArea / this->width;
         double aspectRatio = this->height / this->width;
-        if ( aspectRatio > 2. ) {
-            this->width = std::sqrt(this->currentArea / 2.);
+        if ( aspectRatio > maxAR ) {
+            this->width = std::sqrt(this->currentArea / maxAR);
             this->height = this->currentArea / this->width;
         }
-        else if ( aspectRatio < 0.5 ) {
-            this->width = std::sqrt(this->currentArea * 2.);
+        else if ( aspectRatio < 1. / maxAR ) {
+            this->width = std::sqrt(this->currentArea * maxAR);
             this->height = this->currentArea / this->width;
         }
     }
 
     void SoftModule::setHeight(double height) {
+        double maxAR = this->maxAspectRatio;
         this->height = height;
         this->width = this->currentArea / this->height;
         double aspectRatio = this->height / this->width;
-        if ( aspectRatio > 2. ) {
-            this->width = std::sqrt(this->currentArea / 2.);
+        if ( aspectRatio > maxAR ) {
+            this->width = std::sqrt(this->currentArea / maxAR);
             this->height = this->currentArea / this->width;
         }
-        else if ( aspectRatio < 0.5 ) {
-            this->width = std::sqrt(this->currentArea * 2.);
+        else if ( aspectRatio < 1. / maxAR ) {
+            this->width = std::sqrt(this->currentArea * maxAR);
             this->height = this->currentArea / this->width;
         }
     }
 
+    void SoftModule::setMaxAspectRatio(double aspect_ratio) {
+        this->maxAspectRatio = aspect_ratio;
+    }
+
     void SoftModule::growWidth(double width_to_grow) {
+        double maxAR = this->maxAspectRatio;
         this->width += width_to_grow;
         this->currentArea = this->width * this->height;
         double aspectRatio = this->height / this->width;
-        if ( aspectRatio < 0.5 ) {
-            this->width = std::sqrt(this->currentArea * 2.);
+        if ( aspectRatio < 1. / maxAR ) {
+            this->width = std::sqrt(this->currentArea * maxAR);
             this->height = this->currentArea / this->width;
         }
     }
 
     void SoftModule::growHeight(double height_to_grow) {
+        double maxAR = this->maxAspectRatio;
         this->height += height_to_grow;
         this->currentArea = this->width * this->height;
         double aspectRatio = this->height / this->width;
-        if ( aspectRatio > 2. ) {
-            this->width = std::sqrt(this->currentArea / 2.);
+        if ( aspectRatio > maxAR ) {
+            this->width = std::sqrt(this->currentArea / maxAR);
             this->height = this->currentArea / this->width;
         }
     }
-    
+
     void SoftModule::setArea(double area) {
         this->currentArea = area;
         this->width = std::sqrt(area / ( this->height / this->width ));
