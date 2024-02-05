@@ -1,6 +1,6 @@
 # Global Floorplanning
 
-Run global floorplanning (`<punishment>` and `<max_aspect_ratio>` are optional arguments, the default value are 0.05 and 2):
+Run global floorplanning (`<punishment>` and `<max_aspect_ratio>` are optional arguments, the default values are 0.05 and 2):
 
 ```sh
 ./global_floorplan -i <input_file> -o <output_file> -p <punishment> -a <max_aspect_ratio>
@@ -11,7 +11,7 @@ Run global floorplanning (`<punishment>` and `<max_aspect_ratio>` are optional a
 Run global floorplanning with `<case>` as input (a directory `outputs` is needed, `<punishment>` and `<max_aspect_ratio>` are optional arguments):
 
 ```sh
-./runscript.sh <case> <punishment>
+./runscript.sh <case> <punishment> <max_aspect_ratio>
 ```
 
 
