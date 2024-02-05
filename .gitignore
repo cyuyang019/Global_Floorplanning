@@ -6,3 +6,4 @@ animation/*
 .DS_Store
 .vscode/*
 animate.sh
+parameter_record/*

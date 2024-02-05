@@ -342,7 +342,7 @@ namespace RectGrad {
                         // std::cout << "height: " << lr * hGradient[i] * 2 << std::endl;
                     }
 
-                    curModule->setHeight(curModule->height - lr * hGradient[i] * 2);
+                    curModule->setHeight(curModule->height - lr * hGradient[i]);
 
                     if ( curModule->name == "MCL" ) {
                         std::cout << curModule->height << "\n";
@@ -355,7 +355,7 @@ namespace RectGrad {
                         // std::cout << wGradient[i] << ", " << hGradient[i] << std::endl;
                         // std::cout << "weight: " << lr * wGradient[i] * 2 << std::endl;
                     }
-                    curModule->setWidth(curModule->width - lr * wGradient[i] * 2);
+                    curModule->setWidth(curModule->width - lr * wGradient[i]);
                     if ( curModule->name == "MCL" ) {
                         std::cout << curModule->height << "\n";
                     }
@@ -380,6 +380,9 @@ namespace RectGrad {
 
     void GlobalSolver::roundToInteger() {
         for ( GlobalModule *mod : modules ) {
+            if ( mod->fixed ) {
+                continue;
+            }
             if ( DieWidth > DieHeight ) {
                 mod->width = std::round(mod->width);
                 mod->height = std::ceil(mod->area / mod->width);
@@ -744,18 +747,19 @@ namespace RectGrad {
     }
 
     bool GlobalSolver::isAspectRatioLegal() {
+        double maxAR = ( maxAspectRatio > 2 ) ? maxAspectRatio : 2;
         for ( auto &mod : modules ) {
             if ( mod->fixed ) {
                 continue;
             }
-            if ( mod->height / mod->width > maxAspectRatio ) {
+            if ( mod->height / mod->width > maxAR ) {
                 std::cout << "[GlobalSolver] " << mod->name << ": ";
-                std::cout << mod->height << " / " << mod->width << " > " << maxAspectRatio << std::endl;
+                std::cout << mod->height << " / " << mod->width << " > " << maxAR << std::endl;
                 return false;
             }
-            else if ( mod->height / mod->width < 1. / maxAspectRatio ) {
+            else if ( mod->height / mod->width < 1. / maxAR ) {
                 std::cout << "[GlobalSolver] " << mod->name << ": ";
-                std::cout << mod->height << " / " << mod->width << " < " << 1. / maxAspectRatio << std::endl;
+                std::cout << mod->height << " / " << mod->width << " < " << 1. / maxAR << std::endl;
                 return false;
             }
         }

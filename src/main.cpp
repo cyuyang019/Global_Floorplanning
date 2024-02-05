@@ -100,9 +100,14 @@ int main(int argc, char *argv[]) {
             solver.calcGradient();
             solver.gradientDescent(lr, phase >= 40);
         }
-        solver.currentPosition2txt("animation/" + std::to_string(phase) + ".txt");
+        // solver.currentPosition2txt("animation/" + std::to_string(phase) + ".txt");
     }
 
+    // for ( int i = 0; i < 1000; i++ ) {
+    //     solver.calcGradient();
+    //     solver.gradientDescent(lr);
+    // }
+    
     solver.roundToInteger();
 
     // solver.setPullWhileOverlap(false);
