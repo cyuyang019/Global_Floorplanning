@@ -1,5 +1,15 @@
 # Global Floorplanning
 
+Required directory:
+
+`outputs` for storing output floorplan
+
+`log` for recording log file
+
+`parameter_record` for recording parameters' results
+
+
+
 Run global floorplanning (`<punishment>` and `<max_aspect_ratio>` are optional arguments, the default values are 0.05 and 2):
 
 ```sh
