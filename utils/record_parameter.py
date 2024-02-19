@@ -23,9 +23,9 @@ aspect_ratio_list = aspect_ratio_line.split(" ")
 aspect_ratio = float(aspect_ratio_list[-1])
 
 for line in f:
-    if "Overlap Ratio:" in line:
-        overlap_ratio = line.split()[-1]
-    if "Estimated HPWL:" in line:
+    if "Overlap Ratio" in line:
+        overlap_ratio = line.split()[-2]
+    if "Estimated HPWL" in line:
         HPWL = float(line.split()[-1])
 
 with open(csv_path, 'a', newline='') as file:

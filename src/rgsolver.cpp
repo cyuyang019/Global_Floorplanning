@@ -736,7 +736,6 @@ namespace RectGrad {
     void GlobalSolver::reportOverlap() {
         double totalOverlapArea = 0;
         double totalArea = 0;
-        // std::cout << "═════════ Overlap Report ══════════" << std::endl;
         printf("╔═════════ Overlap Report ═════════╗\n");
         printf("║   Module Name   │      Area      ║\n");
         printf("╟─────────────────┼────────────────╢\n");
