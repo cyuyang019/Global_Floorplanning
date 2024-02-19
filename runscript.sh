@@ -16,6 +16,6 @@ else
     python3 utils/draw_rect_layout.py outputs/$1-output.txt outputs/$1.png
 fi
 
-python3 utils/record_parameter.py $1
+# python3 utils/record_parameter.py $1
 
 # open outputs/$1.png

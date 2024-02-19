@@ -44,11 +44,11 @@ namespace RectGrad {
         void addModule(GlobalModule *in_module);
         void addConnection(const std::vector<std::string> &in_modules, double in_value);
         void readFromParser(Parser &parser);
-        void currentPosition2txt(std::string file_name);
-        double calcDeadspace();
         void calcGradient();
         void gradientDescent(double lr, bool squeeze = false);
+        void currentPosition2txt(std::string file_name);
         void roundToInteger();
+        double calcDeadspace();
         double calcEstimatedHPWL();
         void setSizeScalar(double scalar, bool overlap_aware = false);
         void setPunishment(double force);

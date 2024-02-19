@@ -103,38 +103,18 @@ int main(int argc, char *argv[]) {
         // solver.currentPosition2txt("animation/" + std::to_string(phase) + ".txt");
     }
 
-    // for ( int i = 0; i < 1000; i++ ) {
-    //     solver.calcGradient();
-    //     solver.gradientDescent(lr);
-    // }
-    
     solver.roundToInteger();
 
-    // solver.setPullWhileOverlap(false);
-    // solver.setMaxMovement(0.001);
-    // solver.setSizeScalar(1.);
-    // lr = 5e-4;
-    // int count = 0;
-    // while ( solver.hasOverlap() ) {
-    //     solver.squeezeToFit();
-    //     solver.resetOptimizer();
-    //     for ( int i = 0; i < 100; i++ ) {
-    //         solver.calcGradient();
-    //         solver.gradientDescent(lr);
-    //     }
-    //     solver.currentPosition2txt("animation/51.txt");
-
-    //     if ( ++count >= 5 ) {
-    //         break;
-    //     }
-    // }
+    solver.resetOptimizer();
+    for ( int i = 0; i < 1000; i++ ) {
+        solver.calcGradient();
+        solver.gradientDescent(lr);
+    }
 
     // report the result
     std::cout << std::endl << std::endl;
-    std::cout << "######### Overlap Report ##########" << std::endl;
     solver.reportOverlap();
     std::cout << std::endl;
-    std::cout << "######## Dead Space Report ########" << std::endl;
     solver.reportDeadSpace();
     std::cout << std::endl;
 
