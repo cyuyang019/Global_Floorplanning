@@ -1,12 +1,12 @@
 # Global Floorplanning
 
-Required directory:
+Required directories:
 
 `outputs` for storing output floorplan
 
 `log` for recording log file
 
-`parameter_record` for recording parameters' results
+`parameter_record` for recording different parameters' results
 
 
 
