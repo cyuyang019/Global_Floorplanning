@@ -5,6 +5,23 @@ import matplotlib.patches as patches
 import math
 import time
 import argparse
+import random
+
+used_color = ["#FFE", "#FFF", "#F00", "#FCC", "#BBB"]
+
+def set_rand_color(used_color):
+    # Generate a random color with full 8-bit RGB values
+    R, G, B = random.randint(0, 15), random.randint(0, 15), random.randint(0, 15)
+    
+    # Convert RGB to hexadecimal format
+    color = f"#{R:01x}{G:01x}{B:01x}"
+    
+    # Ensure the color is not in the used colors and has a diverse intensity
+    while color in used_color or (R + G + B) < 10 or (R + G + B) > 35:  # Adjust the sum constraint for diversity
+        R, G, B = random.randint(0, 15), random.randint(0, 15), random.randint(0, 15)
+        color = f"#{R:01x}{G:01x}{B:01x}"
+
+    return color
 
 def draw_block(ax, x, y, width, height, color):
     # color = "#BBB"
@@ -13,20 +30,6 @@ def draw_block(ax, x, y, width, height, color):
             (x, y),
             width,
             height,
-            fill=True,
-            edgecolor="#000",
-            facecolor=color,
-            alpha=1.0  # 0.3 original
-        )
-    )
-
-
-def draw_circle(ax, x, y, radius, color):
-    # color = "#FCC"
-    ax.add_patch(
-        patches.Circle(
-            (x, y),
-            radius,
             fill=True,
             edgecolor="#000",
             facecolor=color,
@@ -103,6 +106,7 @@ for block in range(total_block_number):
     i += 1
 
 if with_line == True:
+    is_hyper = False
     j = i
     max_value = 1
     min_value = 1e10
@@ -113,19 +117,31 @@ if with_line == True:
             max_value = value
         if value < min_value:
             min_value = value
+        if len(ss) > 3:
+            is_hyper = True
         j += 1
 
     for connection in range(total_connection_number):
         ss = f[i].split(" ")
-        x_values = [name2pos[ss[0]][0], name2pos[ss[1]][0]]
-        y_values = [name2pos[ss[0]][1], name2pos[ss[1]][1]]
         value = float(ss[-1])
         if min_value == max_value:
-            width = 1
+            width = 2
         else:
             width = (value - min_value) / (max_value - min_value) * 14 + 1
-        plt.plot(x_values, y_values, color="blue",
-                linestyle="-", linewidth=width, alpha=0.5)
+        
+        if is_hyper:
+            current_color = set_rand_color(used_color)
+            for mod_id in range(1, len(ss)-1):
+                x_values = [name2pos[ss[0]][0], name2pos[ss[mod_id]][0]]
+                y_values = [name2pos[ss[0]][1], name2pos[ss[mod_id]][1]]
+                plt.plot(x_values, y_values, color=current_color,
+                    linestyle="-", linewidth=width, alpha=0.5)
+        else:
+            x_values = [name2pos[ss[0]][0], name2pos[ss[1]][0]]
+            y_values = [name2pos[ss[0]][1], name2pos[ss[1]][1]]
+            
+            plt.plot(x_values, y_values, color="blue",
+                    linestyle="-", linewidth=width, alpha=0.5)
         i += 1
 
 # plt.savefig(str(sys.argv[1])[:-4]+".png")
