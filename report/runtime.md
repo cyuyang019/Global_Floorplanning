@@ -25,3 +25,4 @@
 |   ami33   |        33         |         40         |       122        |      0.46       |
 |   ami49   |        49         |         22         |       396        |      0.51       |
 
+Runtime does not include parsing time and I/O time.

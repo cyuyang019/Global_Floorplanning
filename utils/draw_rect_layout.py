@@ -85,12 +85,12 @@ name2pos = {}
 for block in range(total_block_number):
     ss = f[i].split(" ")
     if ss[1] == "SOFT":
-        x, y, w, h = float(ss[2]), float(ss[3]), float(ss[4]), float(ss[5])
+        x, y, w, h = float(ss[3]), float(ss[4]), float(ss[5]), float(ss[6])
         draw_block(ax, x, y, w, h, color="#FCC")
         plt.text(x + 1, y + 1, ss[0])
         name2pos[ss[0]] = (x + w / 2, y + h / 2)
     else:
-        x, y, w, h = float(ss[2]), float(ss[3]), float(ss[4]), float(ss[5])
+        x, y, w, h = float(ss[3]), float(ss[4]), float(ss[5]), float(ss[6])
         draw_block(ax, x, y, w, h, color="#BBB")
         x_offset, y_offset = 0, 0
         if x == 0:

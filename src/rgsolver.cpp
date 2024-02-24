@@ -109,16 +109,13 @@ namespace RectGrad {
         std::ofstream ostream(file_name);
         ostream << "BLOCK " << moduleNum << " CONNECTION " << connectionNum << std::endl;
         ostream << DieWidth << " " << DieHeight << std::endl;
-        for ( int i = 0; i < moduleNum; i++ ) {
-            ostream << modules[i]->name << " ";
-            ostream << ( ( modules[i]->fixed ) ? "FIXED" : "SOFT" ) << " ";
-            ostream << modules[i]->x << " " << modules[i]->y << " ";
-            if ( modules[i]->fixed ) {
-                ostream << modules[i]->width << " " << modules[i]->height << std::endl;
-            }
-            else {
-                ostream << modules[i]->width << " " << modules[i]->height << std::endl;
-            }
+        for ( GlobalModule *mod : modules ) {
+            ostream << mod->name << " ";
+            ostream << ( ( mod->fixed ) ? "FIXED" : "SOFT" ) << " ";
+            ostream << mod->area << " ";
+            ostream << mod->x << " " << mod->y << " ";
+            ostream << mod->width << " " << mod->height << std::endl;
+            
         }
         for ( int i = 0; i < connectionNum; i++ ) {
             ConnectionInfo *conn = connectionList[i];

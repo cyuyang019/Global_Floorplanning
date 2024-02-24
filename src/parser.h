@@ -64,9 +64,8 @@ namespace RectGrad {
         std::vector<ConnectionInfo *> connectionList;
     public:
         Parser();
-        Parser(std::string file_name);
         ~Parser();
-        void read_input(std::string file_name);
+        bool read_input(std::string file_name);
         int getDieWidth();
         int getDieHeight();
         int getSoftModuleNum();

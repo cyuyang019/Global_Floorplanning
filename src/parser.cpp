@@ -107,13 +107,6 @@ namespace RectGrad {
         this->moduleNum = 0;
     }
 
-    Parser::Parser(std::string file_name) {
-        this->softModuleNum = 0;
-        this->fixedModuleNum = 0;
-        this->moduleNum = 0;
-        this->read_input(file_name);
-    }
-
     Parser::~Parser() {
         for ( int i = 0; i < modules.size(); ++i ) {
             if ( modules[i] != nullptr ) {
@@ -129,13 +122,12 @@ namespace RectGrad {
         }
     }
 
-    void Parser::read_input(std::string file_name) {
+    bool Parser::read_input(std::string file_name) {
         std::ifstream istream(file_name);
         std::istringstream ss;
         std::string line;
         if ( istream.fail() ) {
-            std::cout << file_name << " doesn't exist.\n";
-            return;
+            return false;
         }
         std::string s, ma, mb;
         int area, x, y, w, h, value;
@@ -250,6 +242,7 @@ namespace RectGrad {
         }
 
         istream.close();
+        return true;
     }
 
 

@@ -1,7 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <algorithm>
-#include <cfloat>
 #include <string>
 #include <unistd.h>
 #include <ctime>
@@ -64,7 +62,11 @@ int main(int argc, char *argv[]) {
     }
 
     // parse the input file
-    rg::Parser parser(inputFileName);
+    rg::Parser parser;
+    if ( !parser.read_input(inputFileName) ) {
+        std::cout << "[GlobalSolver] ERROR: Input file does not exist." << std::endl;
+        return -1;
+    }
     rg::GlobalSolver solver;
     solver.readFromParser(parser);
 
