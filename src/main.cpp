@@ -76,7 +76,6 @@ int main(int argc, char *argv[]) {
     int iteration = 1000;
     double lr = 5e-4;
     solver.setMaxMovement(0.001);
-    solver.setPullWhileOverlap(true);
 
     // specify punishment
     if ( punishmentArg <= 0. ) {

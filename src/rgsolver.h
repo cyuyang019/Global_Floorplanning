@@ -29,9 +29,7 @@ namespace RectGrad {
         double punishment;
         double maxAspectRatio;
         double connectNormalize;
-        double overlapTolaranceLen;
         bool toggle;
-        bool pullWhileOverlap;
         bool overlapped;
         int timeStep;
     public:
@@ -55,8 +53,6 @@ namespace RectGrad {
         void setupPunishment(double amplification = 1.);
         void setMaxAspectRatio(double aspect_ratio);
         void setMaxMovement(double ratio = 0.001);
-        void setOverlapTolaranceLen(double len);
-        void setPullWhileOverlap(bool onoff);
         bool hasOverlap();
         void squeezeToFit();
         bool isAreaLegal();

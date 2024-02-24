@@ -7,8 +7,6 @@ namespace RectGrad {
         fixedModuleNum = 0;
         punishment = 0.05;
         maxAspectRatio = 2.;
-        overlapTolaranceLen = 0;
-        pullWhileOverlap = false;
         sizeScalar = 0;
         overlapped = true;
         timeStep = 0;
@@ -209,10 +207,6 @@ namespace RectGrad {
                     double overlappedWidth, overlappedHeight;
                     overlappedWidth = ( curWidth + pushWidth ) / 2.0 - std::abs(x_diff);
                     overlappedHeight = ( curHeight + pushHeight ) / 2.0 - std::abs(y_diff);
-
-                    if ( overlappedWidth > overlapTolaranceLen && overlappedHeight > overlapTolaranceLen && !pullWhileOverlap ) {
-                        continue;
-                    }
 
                     double x_sign = ( x_diff == 0 ) ? 0. : ( x_diff > 0 ) ? 1. : -1.;
                     double y_sign = ( y_diff == 0 ) ? 0. : ( y_diff > 0 ) ? 1. : -1.;
@@ -581,14 +575,6 @@ namespace RectGrad {
         yMaxMovement = DieHeight * ratio;
     }
 
-    void GlobalSolver::setOverlapTolaranceLen(double len) {
-        this->overlapTolaranceLen = len;
-    }
-
-    void GlobalSolver::setPullWhileOverlap(bool onoff) {
-        this->pullWhileOverlap = onoff;
-    }
-
     bool GlobalSolver::hasOverlap() {
         for ( auto &mod : modules ) {
             mod->updateCord(DieWidth, DieHeight, 1.);
@@ -787,7 +773,7 @@ namespace RectGrad {
         printf("║  Overlap Ratio  │      %8.5lf%% ║\n", totalOverlapArea / totalArea * 100);
         printf("╚═════════════════╧════════════════╝\n");
     }
-    
+
     void GlobalSolver::reportDeadSpace() {
         double totalArea = DieWidth * DieHeight;
         double moduleArea = 0;
