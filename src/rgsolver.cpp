@@ -103,7 +103,7 @@ namespace RectGrad {
     }
 
     void GlobalSolver::currentPosition2txt(std::string file_name) {
-        for ( auto &mod : modules ) {
+        for ( GlobalModule *mod : modules ) {
             mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, 1.);
         }
         std::ofstream ostream(file_name);
@@ -161,7 +161,7 @@ namespace RectGrad {
                     bool x_is_min = true;
                     bool y_is_max = true;
                     bool y_is_min = true;
-                    for ( auto &pullModule : curModule->connections[j]->modules ) {
+                    for ( GlobalModule *pullModule : curModule->connections[j]->modules ) {
                         if ( pullModule->centerX > curModule->centerX ) {
                             x_is_max = false;
                         }
@@ -199,14 +199,6 @@ namespace RectGrad {
                     if ( x_diff == 0 && y_diff == 0 ) {
                         continue;
                     }
-
-                    double curWidth = curModule->width;
-                    double pushWidth = ( pullModule->fixed ) ? pullModule->width : pullModule->width;
-                    double curHeight = curModule->height;
-                    double pushHeight = ( pullModule->fixed ) ? pullModule->height : pullModule->height;
-                    double overlappedWidth, overlappedHeight;
-                    overlappedWidth = ( curWidth + pushWidth ) / 2.0 - std::abs(x_diff);
-                    overlappedHeight = ( curHeight + pushHeight ) / 2.0 - std::abs(y_diff);
 
                     double x_sign = ( x_diff == 0 ) ? 0. : ( x_diff > 0 ) ? 1. : -1.;
                     double y_sign = ( y_diff == 0 ) ? 0. : ( y_diff > 0 ) ? 1. : -1.;
@@ -338,31 +330,10 @@ namespace RectGrad {
 
             if ( squeeze ) {
                 if ( toggle ) {
-
-                    if ( curModule->name == "MCL" ) {
-                        // std::cout << curModule->height << " -> ";
-                        // std::cout << wGradient[i] << ", " << hGradient[i] << std::endl;
-                        // std::cout << "height: " << lr * hGradient[i] << std::endl;
-                        // std::cout << xMovement << " " << yMovement << std::endl;
-                    }
-
                     curModule->setHeight(curModule->height - lr * hGradient[i]);
-
-                    if ( curModule->name == "MCL" ) {
-                        // std::cout << curModule->height << "\n";
-                    }
-
                 }
                 else {
-                    if ( curModule->name == "MCL" ) {
-                        // std::cout << curModule->height << " -> ";
-                        // std::cout << wGradient[i] << ", " << hGradient[i] << std::endl;
-                        // std::cout << "width: " << lr * wGradient[i] << std::endl;
-                    }
                     curModule->setWidth(curModule->width - lr * wGradient[i]);
-                    if ( curModule->name == "MCL" ) {
-                        // std::cout << curModule->height << "\n";
-                    }
                 }
             }
 
@@ -408,7 +379,7 @@ namespace RectGrad {
             ConnectionInfo *conn = connectionList[i];
             double maxX = 0., maxY = 0.;
             double minX = 1e10, minY = 1e10;
-            for ( auto &mod : conn->modulePtrs ) {
+            for ( GlobalModule *mod : conn->modulePtrs ) {
                 maxX = ( mod->centerX > maxX ) ? mod->centerX : maxX;
                 minX = ( mod->centerX < minX ) ? mod->centerX : minX;
                 maxY = ( mod->centerY > maxY ) ? mod->centerY : maxY;
@@ -576,7 +547,7 @@ namespace RectGrad {
     }
 
     bool GlobalSolver::hasOverlap() {
-        for ( auto &mod : modules ) {
+        for ( GlobalModule *mod : modules ) {
             mod->updateCord(DieWidth, DieHeight, 1.);
         }
         overlapped = false;
@@ -601,7 +572,7 @@ namespace RectGrad {
     }
 
     void GlobalSolver::squeezeToFit() {
-        for ( auto &mod : modules ) {
+        for ( GlobalModule *mod : modules ) {
             mod->updateCord(DieWidth, DieHeight, 1.);
         }
 
@@ -678,7 +649,7 @@ namespace RectGrad {
     }
 
     bool GlobalSolver::isAreaLegal() {
-        for ( auto &mod : modules ) {
+        for ( GlobalModule *mod : modules ) {
             if ( mod->fixed ) {
                 continue;
             }
@@ -693,7 +664,7 @@ namespace RectGrad {
 
     bool GlobalSolver::isAspectRatioLegal() {
         double maxAR = ( maxAspectRatio > 2 ) ? maxAspectRatio : 2;
-        for ( auto &mod : modules ) {
+        for ( GlobalModule *mod : modules ) {
             if ( mod->fixed ) {
                 continue;
             }

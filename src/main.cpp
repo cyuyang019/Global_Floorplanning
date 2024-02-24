@@ -63,15 +63,15 @@ int main(int argc, char *argv[]) {
         std::cout << "Non-option argument " << argv[index] << std::endl;
     }
 
-    // Start measuring CPU time
-    struct timespec start, end;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-
     // parse the input file
     rg::Parser parser(inputFileName);
     rg::GlobalSolver solver;
     solver.readFromParser(parser);
 
+    // Start measuring CPU time
+    struct timespec start, end;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+    
     // specify gradient descent parameters
     int iteration = 1000;
     double lr = 5e-4;
