@@ -4,6 +4,7 @@
 #include <cfloat>
 #include <string>
 #include <unistd.h>
+#include <ctime>
 #include "parser.h"
 #include "ppsolver.h"
 #include "rgsolver.h"
@@ -62,7 +63,11 @@ int main(int argc, char *argv[]) {
         std::cout << "Non-option argument " << argv[index] << std::endl;
     }
 
+    // Start measuring CPU time
+    struct timespec start, end;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
 
+    // parse the input file
     rg::Parser parser(inputFileName);
     rg::GlobalSolver solver;
     solver.readFromParser(parser);
@@ -111,11 +116,14 @@ int main(int argc, char *argv[]) {
         solver.gradientDescent(lr);
     }
 
+    // Stop measuring CPU time
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+    
     // report the result
     std::cout << std::endl << std::endl;
-    solver.reportOverlap();
-    std::cout << std::endl;
     solver.reportDeadSpace();
+    std::cout << std::endl;
+    solver.reportOverlap();
     std::cout << std::endl;
 
     if ( !solver.isAreaLegal() ) {
@@ -135,6 +143,9 @@ int main(int argc, char *argv[]) {
     solver.currentPosition2txt(outputFileName);
     std::cout << std::fixed;
     std::cout << "[GlobalSolver] Estimated HPWL: " << std::setprecision(2) << solver.calcEstimatedHPWL() << std::endl;
+    double elapsed = ( end.tv_sec - start.tv_sec ) + ( end.tv_nsec - start.tv_nsec ) / 1e9;
+
+    std::cout << "[GlobalSolver] CPU time used: " << elapsed << " seconds." << std::endl;
 
     return 0;
 }

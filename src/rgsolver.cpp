@@ -109,7 +109,7 @@ namespace RectGrad {
             mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, 1.);
         }
         std::ofstream ostream(file_name);
-        ostream << "BLOCK " << moduleNum << " CONNECTOIN " << connectionNum << std::endl;
+        ostream << "BLOCK " << moduleNum << " CONNECTION " << connectionNum << std::endl;
         ostream << DieWidth << " " << DieHeight << std::endl;
         for ( int i = 0; i < moduleNum; i++ ) {
             ostream << modules[i]->name << " ";
@@ -442,7 +442,7 @@ namespace RectGrad {
             direcGrad[i].resize(4); // 0: top, 1: right, 2: bottom, 3: left
         }
 
-        int iterationNum = 4;
+        int iterationNum = 8;
         for ( int it = 0; it < iterationNum; ++it ) {
             for ( int i = 0; i < moduleNum; ++i ) {
                 if ( modules[i]->fixed ) {
