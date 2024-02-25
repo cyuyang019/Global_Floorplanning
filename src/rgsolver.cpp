@@ -249,7 +249,7 @@ namespace RectGrad {
 
                 double x_sign = ( x_diff == 0 ) ? 0 : ( x_diff > 0 ) ? 1. : -1.;
                 double y_sign = ( y_diff == 0 ) ? 0 : ( y_diff > 0 ) ? 1. : -1.;
-                x_grad += -punishment * x_sign * overlappedHeight;
+                x_grad += -punishment * x_sign * overlappedHeight / DieHeight * DieWidth;
                 y_grad += -punishment * y_sign * overlappedWidth;
                 // double x_unitPush = x_sign * overlappedHeight / ( overlappedWidth * overlappedWidth + overlappedHeight * overlappedHeight );
                 // double y_unitPush = y_sign * overlappedWidth / ( overlappedWidth * overlappedWidth + overlappedHeight * overlappedHeight );
@@ -257,7 +257,7 @@ namespace RectGrad {
                 // y_grad += -punishment * y_unitPush;
 
                 // Calculate the dimension gradient
-                w_grad += overlappedHeight;
+                w_grad += overlappedHeight / DieHeight * DieWidth;
                 h_grad += overlappedWidth;
             }
 

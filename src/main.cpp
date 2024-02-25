@@ -147,6 +147,5 @@ int main(int argc, char *argv[]) {
     double elapsed = ( end.tv_sec - start.tv_sec ) + ( end.tv_nsec - start.tv_nsec ) / 1e9;
 
     std::cout << "[GlobalSolver] CPU time used: " << elapsed << " seconds." << std::endl;
-
     return 0;
 }
