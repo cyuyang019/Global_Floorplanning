@@ -17,9 +17,9 @@ f = fread.read().split("\n")
 punishment_line = f[2]
 punishment_list = punishment_line.split(" ")
 try:
-    punishment = float(punishment_list[-1])
+    punishment = "'" + punishment_list[-1] + "'"
 except ValueError:
-    punishment = 0.05
+    punishment = "'0.05'"
 
 
 aspect_ratio_line = f[3]
