@@ -89,6 +89,7 @@ namespace RectGrad {
         this->modules.clear();
         for ( int i = 0; i < this->moduleNum; i++ ) {
             GlobalModule *newModule = parser.getModule(i);
+            this->module2index[newModule] = i;
             this->modules.push_back(newModule);
         }
         double scalar = -1.;
@@ -137,6 +138,27 @@ namespace RectGrad {
             }
         }
         this->setMaxAspectRatio(maxAspectRatio);
+
+        // specify shape constraint
+        std::vector< std::vector<std::string> > shapeConstraintMods = parser.getShapeConstraints();
+        for ( int i = 0; i < shapeConstraintMods.size(); ++i ) {
+            std::cout << "[GlobalSolver] Note: Shape Constraint: ";
+            this->sameShapeMods.push_back(std::vector<GlobalModule *>());
+            for ( int j = 0; j < shapeConstraintMods[i].size(); ++j ) {
+                if ( j != 0 ) {
+                    std::cout << ", ";
+                }
+                std::string tarModName = shapeConstraintMods[i][j];
+                std::cout << tarModName;
+                for ( GlobalModule *mod : this->modules ) {
+                    if ( mod->name == tarModName ) {
+                        this->sameShapeMods.back().push_back(mod);
+                        break;
+                    }
+                }
+            }
+            std::cout << std::endl;
+        }
     }
 
     void GlobalSolver::currentPosition2txt(std::string file_name) {
@@ -314,7 +336,7 @@ namespace RectGrad {
         // move soft modules
         GlobalModule *curModule;
         for ( int i = 0; i < moduleNum; i++ ) {
-            if ( modules[i]->fixed == true ) {
+            if ( modules[i]->fixed ) {
                 continue;
             }
 
@@ -361,8 +383,29 @@ namespace RectGrad {
                 curModule->centerY = DieHeight - curModule->height / 2.;
                 hGradient[i] += curModule->width * 0.5;
             }
+        }
 
-            if ( squeeze ) {
+        // handle shape constraint
+        for ( int i = 0; i < sameShapeMods.size(); ++i ) {
+            double sharedWidthGrad = 0, sharedHeightGrad = 0;
+            for ( GlobalModule *mod : sameShapeMods[i] ) {
+                sharedWidthGrad += wGradient[module2index[mod]];
+                sharedHeightGrad += hGradient[module2index[mod]];
+            }
+            sharedWidthGrad /= ( double ) sameShapeMods[i].size();
+            sharedHeightGrad /= ( double ) sameShapeMods[i].size();
+            for ( GlobalModule *mod : sameShapeMods[i] ) {
+                wGradient[module2index[mod]] = sharedWidthGrad;
+                hGradient[module2index[mod]] = sharedHeightGrad;
+            }
+        }
+
+        if ( squeeze ) {
+            for ( int i = 0; i < moduleNum; i++ ) {
+                if ( modules[i]->fixed ) {
+                    continue;
+                }
+                curModule = modules[i];
                 if ( toggle ) {
                     curModule->setHeight(curModule->height - lr * hGradient[i]);
                 }
@@ -370,7 +413,6 @@ namespace RectGrad {
                     curModule->setWidth(curModule->width - lr * wGradient[i]);
                 }
             }
-
         }
         toggle = !toggle;
     }
@@ -443,6 +485,7 @@ namespace RectGrad {
 
         int iterationNum = 8;
         for ( int it = 0; it < iterationNum; ++it ) {
+            // calculate gradient
             for ( int i = 0; i < moduleNum; ++i ) {
                 if ( modules[i]->fixed ) {
                     continue;
@@ -496,6 +539,26 @@ namespace RectGrad {
                     else if ( curModule->centerX < pushModule->centerX ) {   // right
                         direcGrad[i][1] += overlappedHeight;
                     }
+                }
+            }
+            // handle shape constraint
+            for ( int i = 0; i < sameShapeMods.size(); ++i ) {
+                double sharedBottomGrad = 0, sharedTopGrad = 0, sharedLeftGrad = 0, sharedRightGrad = 0;
+                for ( GlobalModule *mod : sameShapeMods[i] ) {
+                    sharedTopGrad += direcGrad[module2index[mod]][0];
+                    sharedRightGrad += direcGrad[module2index[mod]][1];
+                    sharedBottomGrad += direcGrad[module2index[mod]][2];
+                    sharedLeftGrad += direcGrad[module2index[mod]][3];
+                }
+                sharedTopGrad /= ( double ) sameShapeMods[i].size();
+                sharedRightGrad /= ( double ) sameShapeMods[i].size();
+                sharedBottomGrad /= ( double ) sameShapeMods[i].size();
+                sharedLeftGrad /= ( double ) sameShapeMods[i].size();
+                for ( GlobalModule *mod : sameShapeMods[i] ) {
+                    direcGrad[module2index[mod]][0] = sharedTopGrad;
+                    direcGrad[module2index[mod]][1] = sharedRightGrad;
+                    direcGrad[module2index[mod]][2] = sharedBottomGrad;
+                    direcGrad[module2index[mod]][3] = sharedLeftGrad;
                 }
             }
             // grow soft modules
@@ -743,9 +806,9 @@ namespace RectGrad {
                 double overlappedWidth, overlappedHeight;
 
                 double mod1Width = mod1->width;
-                double mod2Width = ( mod2->fixed ) ? mod2->width : mod2->width;
+                double mod2Width = mod2->width;
                 double mod1Height = mod1->height;
-                double mod2Height = ( mod2->fixed ) ? mod2->height : mod2->height;
+                double mod2Height = mod2->height;
 
                 double max_xl = std::max(mod1->centerX - mod1Width / 2., mod2->centerX - mod2Width / 2.);
                 double min_xr = std::min(mod1->centerX + mod1Width / 2., mod2->centerX + mod2Width / 2.);

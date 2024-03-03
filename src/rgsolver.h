@@ -19,11 +19,13 @@ namespace RectGrad {
         double DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
         std::vector<GlobalModule *> modules;
+        std::unordered_map<GlobalModule *, int> module2index;
         std::vector<ConnectionInfo *> connectionList;
         std::vector<double> xGradient, yGradient;
         std::vector<double> wGradient, hGradient;
         std::vector<double> xFirstMoment, yFirstMoment;
         std::vector<double> xSecondMoment, ySecondMoment;
+        std::vector< std::vector<GlobalModule *> > sameShapeMods;
         double xMaxMovement, yMaxMovement;
         double sizeScalar;
         double punishment;
