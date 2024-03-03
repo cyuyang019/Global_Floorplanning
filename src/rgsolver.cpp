@@ -78,7 +78,7 @@ namespace RectGrad {
         }
     }
 
-    void GlobalSolver::readFromParser(Parser &parser) {
+    void GlobalSolver::readFloorplan(Parser &parser) {
         setOutline(parser.getDieWidth(), parser.getDieHeight());
         setSoftModuleNum(parser.getSoftModuleNum());
         setFixedModuleNum(parser.getFixedModuleNum());
@@ -102,6 +102,43 @@ namespace RectGrad {
         connectNormalize = 1. / scalar;
     }
 
+    void GlobalSolver::readConfig(Parser &parser, std::string punishmentArg, std::string maxAspectRatioArg) {
+        // specify punishment
+        if ( punishmentArg != "" ) {
+            this->punishment = std::stod(punishmentArg.c_str());
+            std::cout << "[GlobalSolver] Note: Punishment is set to " << punishmentArg << std::endl;
+        }
+        else {
+            if ( parser.getPunishment() != "" ) {
+                std::string configPunishment = parser.getPunishment();
+                std::cout << "[GlobalSolver] Note: Punishment is set to " << configPunishment << std::endl;
+                this->punishment = std::stod(configPunishment.c_str());
+            }
+            else {
+                std::cout << "[GlobalSolver] Note: Punishment is not set. Use default value 0.05." << std::endl;
+                this->punishment = 0.05;
+            }
+        }
+
+        // specify maximum aspect ratio
+        double maxAspectRatio;
+        if ( maxAspectRatioArg != "" ) {
+            maxAspectRatio = std::stod(maxAspectRatioArg.c_str());
+            std::cout << "[GlobalSolver] Note: Maximum Aspect Ratio is set to " << maxAspectRatioArg << std::endl;
+        }
+        else {
+            if ( parser.getMaxAspectRatio() > 0.99 ) {
+                maxAspectRatio = parser.getMaxAspectRatio();
+                std::cout << "[GlobalSolver] Note: Maximum Aspect Ratio is set to " << maxAspectRatio << std::endl;
+            }
+            else {
+                std::cout << "[GlobalSolver] Note: Maximum Aspect Ratio is not set. Use default value 2." << std::endl;
+                maxAspectRatio = 2.;
+            }
+        }
+        this->setMaxAspectRatio(maxAspectRatio);
+    }
+
     void GlobalSolver::currentPosition2txt(std::string file_name) {
         for ( GlobalModule *mod : modules ) {
             mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, 1.);
@@ -115,7 +152,7 @@ namespace RectGrad {
             ostream << mod->area << " ";
             ostream << mod->x << " " << mod->y << " ";
             ostream << mod->width << " " << mod->height << std::endl;
-            
+
         }
         for ( int i = 0; i < connectionNum; i++ ) {
             ConnectionInfo *conn = connectionList[i];

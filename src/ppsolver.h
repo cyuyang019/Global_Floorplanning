@@ -14,7 +14,7 @@ namespace PushPull {
         friend class ::LFLegaliser;
         float DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
-        std::vector<GlobalModule*> modules;
+        std::vector<GlobalModule *> modules;
         std::vector<float> xForce, yForce;
         float xMaxMovement, yMaxMovement;
         float radiusRatio;
@@ -26,9 +26,9 @@ namespace PushPull {
         void setSoftModuleNum(int num);
         void setFixedModuleNum(int num);
         void setConnectionNum(int num);
-        void addModule(GlobalModule* in_module);
+        void addModule(GlobalModule *in_module);
         void addConnection(std::string ma, std::string mb, float value);
-        void readFromParser(Parser& parser);
+        void readFloorplan(Parser &parser);
         void currentPosition2txt(std::string file_name);
         float calcDeadspace();
         void calcModuleForce();

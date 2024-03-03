@@ -14,7 +14,7 @@ if not os.path.exists(csv_path):
 fread = open(log_path, 'r')
 f = fread.read().split("\n")
 
-punishment_line = f[2]
+punishment_line = f[3]
 punishment_list = punishment_line.split(" ")
 try:
     punishment = "'" + punishment_list[-1] + "'"
@@ -22,7 +22,7 @@ except ValueError:
     punishment = "'0.05'"
 
 
-aspect_ratio_line = f[3]
+aspect_ratio_line = f[4]
 aspect_ratio_list = aspect_ratio_line.split(" ")
 aspect_ratio = float(aspect_ratio_list[-1])
 

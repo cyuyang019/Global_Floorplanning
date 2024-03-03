@@ -21,8 +21,8 @@ namespace PushPull {
     }
 
     void GlobalSolver::setOutline(int width, int height) {
-        DieWidth = (float) width;
-        DieHeight = (float) height;
+        DieWidth = ( float ) width;
+        DieHeight = ( float ) height;
         xMaxMovement = DieWidth / 4000.;
         yMaxMovement = DieHeight / 4000.;
     }
@@ -45,13 +45,13 @@ namespace PushPull {
         connectionNum = num;
     }
 
-    void GlobalSolver::addModule(GlobalModule* in_module) {
+    void GlobalSolver::addModule(GlobalModule *in_module) {
         modules.push_back(in_module);
     }
 
     void GlobalSolver::addConnection(std::string ma, std::string mb, float value) {
-        GlobalModule* m0;
-        GlobalModule* m1;
+        GlobalModule *m0;
+        GlobalModule *m1;
         for ( int i = 0; i < modules.size(); i++ ) {
             if ( modules[i]->name == ma )
                 m0 = modules[i];
@@ -62,7 +62,7 @@ namespace PushPull {
         m1->addConnection(m0, value);
     }
 
-    void GlobalSolver::readFromParser(Parser& parser) {
+    void GlobalSolver::readFloorplan(Parser &parser) {
         setOutline(parser.getDieWidth(), parser.getDieHeight());
         setSoftModuleNum(parser.getSoftModuleNum());
         setFixedModuleNum(parser.getFixedModuleNum());
@@ -73,7 +73,7 @@ namespace PushPull {
         this->modules.clear();
         for ( int i = 0; i < this->moduleNum; i++ ) {
             GlobalModule copy = parser.getModule(i);
-            GlobalModule* newModule = new GlobalModule(copy.name, copy.x, copy.y, copy.area, copy.fixed);
+            GlobalModule *newModule = new GlobalModule(copy.name, copy.x, copy.y, copy.area, copy.fixed);
             if ( copy.fixed )
                 newModule->addFixedOutline(copy.fx, copy.fy, copy.fw, copy.fh);
             this->modules.push_back(newModule);
@@ -81,16 +81,16 @@ namespace PushPull {
         for ( int i = 0; i < connectionNum; i++ ) {
             ConnectionInfo conn = parser.getConnection(i);
 
-            GlobalModule* m0;
-            GlobalModule* m1;
+            GlobalModule *m0;
+            GlobalModule *m1;
             for ( int i = 0; i < modules.size(); i++ ) {
                 if ( modules[i]->name == conn.m0 )
                     m0 = modules[i];
                 else if ( modules[i]->name == conn.m1 )
                     m1 = modules[i];
             }
-            m0->addConnection(m1, (float) conn.value);
-            m1->addConnection(m0, (float) conn.value);
+            m0->addConnection(m1, ( float ) conn.value);
+            m1->addConnection(m0, ( float ) conn.value);
         }
     }
 
@@ -110,7 +110,7 @@ namespace PushPull {
                 ostream << modules[i]->radius * radiusRatio << std::endl;
             }
         }
-        std::vector<GlobalModule*> added;
+        std::vector<GlobalModule *> added;
         for ( int i = 0; i < moduleNum; i++ ) {
             added.push_back(modules[i]);
             for ( int j = 0; j < modules[i]->connections.size(); j++ ) {
@@ -133,13 +133,13 @@ namespace PushPull {
         return 1. - moduleArea / dieArea;
     }
 
-    float calcDistance(GlobalModule* ma, GlobalModule* mb) {
+    float calcDistance(GlobalModule *ma, GlobalModule *mb) {
         float x1 = ma->x, x2 = mb->x;
         float y1 = ma->y, y2 = mb->y;
         return std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
     }
 
-    void calcSeg2PntDist(float s1x, float s1y, float s2x, float s2y, float px, float py, float* distance, float* angle) {
+    void calcSeg2PntDist(float s1x, float s1y, float s2x, float s2y, float px, float py, float *distance, float *angle) {
         float APAB = ( s2x - s1x ) * ( px - s1x ) + ( s2y - s1y ) * ( py - s1y );
         if ( APAB <= 0 ) {
             *distance = std::sqrt(std::pow(( px - s1x ), 2) + std::pow(( py - s1y ), 2));
@@ -163,7 +163,7 @@ namespace PushPull {
     }
 
     void GlobalSolver::calcModuleForce() {
-        GlobalModule* curModule;
+        GlobalModule *curModule;
         for ( int i = 0; i < moduleNum; i++ ) {
             if ( modules[i]->fixed == true )
                 continue;
@@ -173,7 +173,7 @@ namespace PushPull {
             float y_force = 0;
 
             for ( int j = 0; j < curModule->connections.size(); j++ ) {
-                GlobalModule* pullModule = curModule->connections[j]->module;
+                GlobalModule *pullModule = curModule->connections[j]->module;
                 float pullValue = curModule->connections[j]->value;
                 float distance, x_distance, y_distance;
 
@@ -235,7 +235,7 @@ namespace PushPull {
             for ( int j = 0; j < moduleNum; j++ ) {
                 if ( j == i )
                     continue;
-                GlobalModule* pushModule = modules[j];
+                GlobalModule *pushModule = modules[j];
                 float distance, x_distance, y_distance;
 
                 if ( pushModule->fixed ) {
@@ -319,7 +319,7 @@ namespace PushPull {
             yRatio = yMaxMovement / yMax;
 
         // move soft modules
-        GlobalModule* curModule;
+        GlobalModule *curModule;
         for ( int i = 0; i < moduleNum; i++ ) {
             if ( modules[i]->fixed == true )
                 continue;
@@ -343,9 +343,9 @@ namespace PushPull {
     float GlobalSolver::calcEstimatedHPWL() {
         float HPWL = 0;
         for ( int i = 0; i < moduleNum; i++ ) {
-            GlobalModule* curModule = modules[i];
+            GlobalModule *curModule = modules[i];
             for ( int j = 0; j < curModule->connections.size(); j++ ) {
-                GlobalModule* conModule = curModule->connections[j]->module;
+                GlobalModule *conModule = curModule->connections[j]->module;
                 float value = curModule->connections[j]->value;
                 float x_diff = std::abs(curModule->x - conModule->x);
                 float y_diff = std::abs(curModule->y - conModule->y);
@@ -366,7 +366,7 @@ namespace PushPull {
     void GlobalSolver::setupPushForce(float amplification) {
         float maxForce = 0;
         for ( int i = 0; i < moduleNum; i++ ) {
-            GlobalModule* curModule = modules[i];
+            GlobalModule *curModule = modules[i];
             float forces = 0;
             for ( int j = 0; j < curModule->connections.size(); j++ ) {
                 forces += curModule->connections[j]->value;

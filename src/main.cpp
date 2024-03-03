@@ -13,8 +13,9 @@ int main(int argc, char *argv[]) {
     // parsing command line arguments
     std::string inputFileName;
     std::string outputFileName;
-    double punishmentArg = -1.;
-    double maxAspectRatioArg = -1.;
+    std::string configFileName;
+    std::string punishmentArg = "";
+    std::string maxAspectRatioArg = "";
 
     int opt;
 
@@ -22,10 +23,10 @@ int main(int argc, char *argv[]) {
     // h is an option that doesn't require an argument
     // c: is an option that requires an argument (indicated by the colon)
     // o: is another option that requires an argument
-    while ( ( opt = getopt(argc, argv, "hi:o:p:a:") ) != -1 ) {
+    while ( ( opt = getopt(argc, argv, "hi:o:c:p:a:") ) != -1 ) {
         switch ( opt ) {
         case 'h':
-            std::cout << "Usage: " << argv[0] << " [-h] [-i <input>] [-o <output>] [-p <punishment>] [-a <aspect_ratio>]\n";
+            std::cout << "Usage: " << argv[0] << " [-h] [-i <input>] [-o <output>] [-c <config>] [-p <punishment>] [-a <aspect_ratio>]\n";
             return 0;
         case 'i':
             std::cout << "[GlobalSolver] Note: Input file is set to " << optarg << std::endl;
@@ -36,15 +37,17 @@ int main(int argc, char *argv[]) {
             outputFileName = optarg;
             break;
         case 'p':
-            std::cout << "[GlobalSolver] Note: Punishment is set to " << optarg << std::endl;
-            punishmentArg = std::stod(optarg);
+            punishmentArg = optarg;
             break;
         case 'a':
-            std::cout << "[GlobalSolver] Note: Maximum aspect ratio is set to " << optarg << std::endl;
-            maxAspectRatioArg = std::stod(optarg);
+            maxAspectRatioArg = optarg;
+            break;
+        case 'c':
+            std::cout << "[GlobalSolver] Note: Config file is set to " << optarg << std::endl;
+            configFileName = optarg;
             break;
         case '?':
-            if ( optopt == 'i' || optopt == 'o' || optopt == 'p' || optopt == 'a' )
+            if ( optopt == 'i' || optopt == 'o' || optopt == 'p' || optopt == 'a' || optopt == 'c' )
                 std::cerr << "Option -" << static_cast< char >( optopt ) << " requires an argument." << std::endl;
             else if ( isprint(optopt) )
                 std::cerr << "Unknown option `-" << static_cast< char >( optopt ) << "`." << std::endl;
@@ -61,37 +64,27 @@ int main(int argc, char *argv[]) {
         std::cout << "Non-option argument " << argv[index] << std::endl;
     }
 
-    // parse the input file
+    // parse input file and config file
     rg::Parser parser;
+    rg::GlobalSolver solver;
     if ( !parser.read_input(inputFileName) ) {
         std::cout << "[GlobalSolver] ERROR: Input file does not exist." << std::endl;
         return -1;
     }
-    rg::GlobalSolver solver;
-    solver.readFromParser(parser);
+    if ( !parser.read_config(configFileName) ) {
+        std::cout << "[GlobalSolver] Note: Config file does not exist. Use default configuration." << std::endl;
+    }
+    solver.readFloorplan(parser);
+    solver.readConfig(parser, punishmentArg, maxAspectRatioArg);
 
     // Start measuring CPU time
     struct timespec start, end;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    
+
     // specify gradient descent parameters
     int iteration = 1000;
     double lr = 5e-4;
     solver.setMaxMovement(0.001);
-
-    // specify punishment
-    if ( punishmentArg <= 0. ) {
-        std::cout << "[GlobalSolver] Note: Punishment is not set. Use default value 0.05.\n";
-    }
-    double punishment = ( punishmentArg > 0. ) ? punishmentArg : 0.05;
-    solver.setPunishment(punishment);
-
-    // specify maximum aspect ratio
-    if ( maxAspectRatioArg <= 0. ) {
-        std::cout << "[GlobalSolver] Note: Maximum aspect ratio is not set. Use default value 2.\n";
-    }
-    double maxAspectRatio = ( maxAspectRatioArg > 0. ) ? maxAspectRatioArg : 2.;
-    solver.setMaxAspectRatio(maxAspectRatio);
 
     // apply gradient descent
     for ( int phase = 1; phase <= 50; phase++ ) {
@@ -119,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     // Stop measuring CPU time
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
-    
+
     // report the result
     std::cout << std::endl << std::endl;
     solver.reportDeadSpace();

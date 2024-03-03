@@ -58,14 +58,23 @@ namespace RectGrad {
 
     class Parser {
     private:
+        bool configExists;
+        // info of floorplan
         int DieWidth, DieHeight;
         int softModuleNum, fixedModuleNum, moduleNum, connectionNum;
         std::vector<GlobalModule *> modules;
         std::vector<ConnectionInfo *> connectionList;
+        // info of solver
+        std::string punishment;
+        double max_aspect_ratio;
+        double lr;
+        std::vector< std::vector<std::string> > ShapeConstraintMods;
     public:
         Parser();
         ~Parser();
         bool read_input(std::string file_name);
+        bool read_config(std::string file_name);
+        // info of floorplan
         int getDieWidth();
         int getDieHeight();
         int getSoftModuleNum();
@@ -74,6 +83,11 @@ namespace RectGrad {
         int getConnectionNum();
         GlobalModule *getModule(int index);
         ConnectionInfo *getConnection(int index);
+        // info of solver
+        std::string getPunishment();
+        double getMaxAspectRatio();
+        double getLearnRate();
+        std::vector< std::vector<std::string> > getShapeConstraints();
     };
 } // namespace RectGrad
 

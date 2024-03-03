@@ -33,7 +33,7 @@ namespace PushPull {
         for ( int i = 0; i < this->softModuleNum; i++ ) {
             istream >> s >> area;
             GlobalModule mod(s, this->DieWidth / 2., this->DieHeight / 2., ( float ) area, false);
-            modules.push_back(mod);
+            this->modules.push_back(mod);
             //std::cout << "Reading Soft Module " << s << "..." << std::endl;
         }
 
@@ -43,7 +43,7 @@ namespace PushPull {
             istream >> s >> x >> y >> w >> h;
             GlobalModule mod(s, x + w / 2., y + h / 2., ( float ) w * h, true);
             mod.addFixedOutline(x, y, w, h);
-            modules.push_back(mod);
+            this->modules.push_back(mod);
             //std::cout << "Reading Fixed Module " << s << "..." << std::endl;
         }
 
@@ -54,7 +54,7 @@ namespace PushPull {
         for ( int i = 0; i < connectionNum; i++ ) {
             istream >> ma >> mb >> value;
             ConnectionInfo conn(ma, mb, ( float ) value);
-            connectionList.push_back(conn);
+            this->connectionList.push_back(conn);
             //std::cout << "Reading Connection " << ma << "<->" << mb << std::endl;
         }
 
@@ -87,11 +87,11 @@ namespace PushPull {
     }
 
     GlobalModule Parser::getModule(int index) {
-        return modules[index];
+        return this->modules[index];
     }
 
     ConnectionInfo Parser::getConnection(int index) {
-        return connectionList[index];
+        return this->connectionList[index];
     }
 
     std::vector<ConnectionInfo> Parser::getConnectionList() const {
@@ -105,19 +105,20 @@ namespace RectGrad {
         this->softModuleNum = 0;
         this->fixedModuleNum = 0;
         this->moduleNum = 0;
+        this->configExists = false;
     }
 
     Parser::~Parser() {
-        for ( int i = 0; i < modules.size(); ++i ) {
-            if ( modules[i] != nullptr ) {
-                delete modules[i];
-                modules[i] = nullptr;
+        for ( int i = 0; i < this->modules.size(); ++i ) {
+            if ( this->modules[i] != nullptr ) {
+                delete this->modules[i];
+                this->modules[i] = nullptr;
             }
         }
-        for ( int i = 0; i < connectionList.size(); ++i ) {
-            if ( connectionList[i] != nullptr ) {
-                delete connectionList[i];
-                connectionList[i] = nullptr;
+        for ( int i = 0; i < this->connectionList.size(); ++i ) {
+            if ( this->connectionList[i] != nullptr ) {
+                delete this->connectionList[i];
+                this->connectionList[i] = nullptr;
             }
         }
     }
@@ -163,7 +164,7 @@ namespace RectGrad {
             }
             used_area.insert(area);
 
-            modules.push_back(mod);
+            this->modules.push_back(mod);
             // std::cout << "Reading Soft Module " << s << "..." << std::endl;
         }
 
@@ -181,7 +182,7 @@ namespace RectGrad {
             ss.str(line);
             ss >> s >> x >> y >> w >> h;
             GlobalModule *mod = new FixedModule(s, x, y, w, h, w * h);
-            modules.push_back(mod);
+            this->modules.push_back(mod);
             // std::cout << "Reading Fixed Module " << s << "..." << std::endl;
         }
 
@@ -198,35 +199,35 @@ namespace RectGrad {
             std::getline(istream, line);
             ss.str(std::string());
             ss.clear();
-            std::vector<std::string> modules;
+            std::vector<std::string> mods;
             ss.str(line);
 
             while ( ss >> mod ) {
-                modules.push_back(mod);
+                mods.push_back(mod);
             }
 
-            value = std::stoi(modules.back());
-            modules.pop_back();
+            value = std::stoi(mods.back());
+            mods.pop_back();
 
-            ConnectionInfo *conn = new ConnectionInfo(modules, value);
-            connectionList.push_back(conn);
-            // std::cout << "Reading Connection " << modules[0] << "<->" << modules[1] << " : " << value << std::endl;
+            ConnectionInfo *conn = new ConnectionInfo(mods, value);
+            this->connectionList.push_back(conn);
+            // std::cout << "Reading Connection " << mods[0] << "<->" << mods[1] << " : " << value << std::endl;
             // std::cout << "Reading Connection ";
-            // for ( std::string mod : modules ) {
+            // for ( std::string mod : mods ) {
             //     std::cout << mod << " ";
             // }
             // std::cout << " : " << value << std::endl;
         }
 
         for ( int i = 0; i < connectionNum; i++ ) {
-            ConnectionInfo *conn = connectionList[i];
+            ConnectionInfo *conn = this->connectionList[i];
 
             std::vector<GlobalModule *> connectedModules;
 
             for ( std::string &modName : conn->modules ) {
-                for ( int i = 0; i < modules.size(); i++ ) {
-                    if ( modules[i]->name == modName ) {
-                        connectedModules.push_back(modules[i]);
+                for ( int i = 0; i < this->modules.size(); i++ ) {
+                    if ( this->modules[i]->name == modName ) {
+                        connectedModules.push_back(this->modules[i]);
                     }
                 }
             }
@@ -271,13 +272,104 @@ namespace RectGrad {
     }
 
     GlobalModule *Parser::getModule(int index) {
-        return modules[index];
+        return this->modules[index];
     }
 
     ConnectionInfo *Parser::getConnection(int index) {
-        ConnectionInfo *newConn = new ConnectionInfo(*( connectionList[index] ));
+        ConnectionInfo *newConn = new ConnectionInfo(*( this->connectionList[index] ));
         return newConn;
     }
 
+
+
+    // ============================
+    //      Parse Config File
+    // ============================
+
+    bool Parser::read_config(std::string file_name) {
+        std::ifstream istream(file_name);
+        std::istringstream ss;
+        std::string line, header;
+        if ( istream.fail() ) {
+            return false;
+        }
+
+        while ( std::getline(istream, line) ) {
+            ss.clear();
+            ss.str(line);
+            ss >> header;
+
+            if ( header == "punishment" ) {
+                ss >> this->punishment;
+                // std::cout << "punishment " << this->punishment << std::endl;
+            }
+            else if ( header == "max_aspect_ratio" ) {
+                ss >> this->max_aspect_ratio;
+                // std::cout << "max_aspect_ratio " << this->max_aspect_ratio << std::endl;
+            }
+            else if ( header == "lr" ) {
+                ss >> this->lr;
+                // std::cout << "lr " << this->lr << std::endl;
+            }
+            else if ( header == "shape_constraint" ) {
+                int num;
+                ss >> num;
+                while ( num-- > 0 ) {
+                    std::getline(istream, line);
+                    ss.clear();
+                    ss.str(line);
+                    std::string mod;
+                    this->ShapeConstraintMods.push_back(std::vector<std::string>());
+                    while ( ss >> mod ) {
+                        this->ShapeConstraintMods.back().push_back(mod);
+                    }
+                }
+                // for ( int i = 0; i < ShapeConstraintMods.size(); ++i ) {
+                //     for ( int j = 0; j < ShapeConstraintMods[i].size(); ++j ) {
+                //         std::cout << ShapeConstraintMods[i][j] << " ";
+                //     }
+                //     std::cout << std::endl;
+                // }
+            }
+            else {
+                std::cout << "[GlobalSolver] ERROR: Invalid syntax in config file." << std::endl;
+                return false;
+            }
+        }
+
+        istream.close();
+        this->configExists = true;
+        return true;
+    }
+
+    std::string Parser::getPunishment() {
+        if ( this->configExists ) {
+            return this->punishment;
+        }
+        return "";
+    }
+
+    double Parser::getMaxAspectRatio() {
+        if ( this->configExists ) {
+            return this->max_aspect_ratio;
+        }
+        return -1;
+    }
+
+    double Parser::getLearnRate() {
+        if ( this->configExists ) {
+            return this->lr;
+        }
+        return -1;
+    }
+
+    std::vector< std::vector<std::string> > Parser::getShapeConstraints() {
+        if ( this->configExists ) {
+            return this->ShapeConstraintMods;
+        }
+        else {
+            return std::vector< std::vector<std::string> >();
+        }
+    }
 } // namespace RectGrad
 

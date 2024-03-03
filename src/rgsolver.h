@@ -41,7 +41,8 @@ namespace RectGrad {
         void setConnectionNum(int num);
         void addModule(GlobalModule *in_module);
         void addConnection(const std::vector<std::string> &in_modules, double in_value);
-        void readFromParser(Parser &parser);
+        void readFloorplan(Parser &parser);
+        void readConfig(Parser &parser, std::string punishmentArg, std::string maxAspectRatioArg);
         void calcGradient();
         void gradientDescent(double lr, bool squeeze = false);
         void currentPosition2txt(std::string file_name);
