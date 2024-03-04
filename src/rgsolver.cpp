@@ -159,6 +159,14 @@ namespace RectGrad {
             }
             std::cout << std::endl;
         }
+        for ( int i = 0; i < this->sameShapeMods.size(); ++i ) {
+            double area = sameShapeMods[i][0]->area;
+            for ( GlobalModule *mod : sameShapeMods[i] ) {
+                if ( std::abs(mod->area - area) > 1e-5 ) {
+                    std::cout << "[GlobalSolver] Warning: Modules with shape constraint should have same area.\n";
+                }
+            }
+        }
     }
 
     void GlobalSolver::currentPosition2txt(std::string file_name) {
@@ -417,6 +425,22 @@ namespace RectGrad {
         toggle = !toggle;
     }
 
+    void GlobalSolver::checkShapeConstraint() {
+        for ( int i = 0; i < sameShapeMods.size(); ++i ) {
+            double sharedWidth = 0, sharedHeight = 0;
+            for ( GlobalModule *mod : sameShapeMods[i] ) {
+                sharedWidth += mod->width;
+                sharedHeight += mod->height;
+            }
+            sharedWidth /= ( double ) sameShapeMods[i].size();
+            sharedHeight /= ( double ) sameShapeMods[i].size();
+            for ( GlobalModule *mod : sameShapeMods[i] ) {
+                mod->width = sharedWidth;
+                mod->height = sharedHeight;
+            }
+        }
+    }
+    
     void GlobalSolver::roundToInteger() {
         for ( GlobalModule *mod : modules ) {
             if ( mod->fixed ) {

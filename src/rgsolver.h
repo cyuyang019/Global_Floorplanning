@@ -47,8 +47,9 @@ namespace RectGrad {
         void readConfig(Parser &parser, std::string punishmentArg, std::string maxAspectRatioArg);
         void calcGradient();
         void gradientDescent(double lr, bool squeeze = false);
-        void currentPosition2txt(std::string file_name);
+        void checkShapeConstraint();
         void roundToInteger();
+        void currentPosition2txt(std::string file_name);
         double calcDeadspace();
         double calcEstimatedHPWL();
         void setSizeScalar(double scalar, bool overlap_aware = false);

@@ -99,6 +99,7 @@ int main(int argc, char *argv[]) {
             solver.calcGradient();
             solver.gradientDescent(lr, phase >= 40);
         }
+        solver.checkShapeConstraint();
         // solver.currentPosition2txt("animation/" + std::to_string(phase) + ".txt");
     }
 
