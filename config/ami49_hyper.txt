@@ -1,0 +1,2 @@
+punishment 0.0542
+max_aspect_ratio 2
