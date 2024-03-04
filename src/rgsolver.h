@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
+#include <unordered_map>
 
 namespace RectGrad {
     class GlobalSolver {
