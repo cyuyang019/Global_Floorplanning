@@ -1,4 +1,4 @@
-CHIP 1076 1076
+CHIP 1488 1188
 SOFTMODULE 33
 bk1 44688
 bk10a 44982
@@ -74,7 +74,7 @@ P13 2058 602 0 0
 P12 2058 476 0 0
 P11 455 0 0 0
 P10 364 0 0 0
-CONNECTION 123
+CONNECTION 122
 GND bk9d bk9c bk9b bk9a bk8b bk8a bk7 bk6 bk5c bk5b bk5a bk4 bk3 bk21 bk20 bk2 bk19 bk18 bk17b bk17a bk16 bk15b bk15a bk14c bk14b bk14a bk13 bk12 bk11 bk10c bk10b bk10a bk1 1
 bk9d bk9c bk9b bk9a bk7 bk6 bk5c bk5b bk5a bk4 bk3 bk21 bk20 bk2 bk18 bk17b bk17a bk16 bk15b bk15a bk14c bk14b bk14a bk13 bk12 bk11 bk10c bk10b bk10a bk1 1
 bk9d bk9c bk9b bk9a bk7 bk6 bk5c bk5b bk5a bk4 bk3 bk21 bk20 bk2 bk18 bk17b bk17a bk14b bk13 bk12 bk11 bk10c bk10b bk10a bk1 1

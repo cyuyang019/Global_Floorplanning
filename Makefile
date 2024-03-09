@@ -13,7 +13,7 @@ verify: ./utils/verify
 # LINKFLAGS = -pedantic -Wall -fomit-frame-pointer -funroll-all-loops -O3
 LINKFLAGS = -O3
 
-global_floorplan: main.o parser.o globmodule.o ppsolver.o rgsolver.o
+global_floorplan: main.o parser.o globmodule.o rgsolver.o
 	$(CXX) $(FLAGS) -I $(BOOSTPATH) $(LINKFLAGS) $^ -o $@
 
 main.o: $(SRCPATH)/main.cpp 
@@ -24,7 +24,7 @@ main.o: $(SRCPATH)/main.cpp
 
 
 
-global_floorplan_debug: main_db.o parser_db.o globmodule_db.o ppsolver_db.o rgsolver_db.o
+global_floorplan_debug: main_db.o parser_db.o globmodule_db.o rgsolver_db.o
 	$(CXX) $(DEBUGFLAGS) -I $(BOOSTPATH) $(LINKFLAGS) $^ -o $@
 
 main_db.o: $(SRCPATH)/main.cpp 

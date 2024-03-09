@@ -4,10 +4,7 @@
 #include <unistd.h>
 #include <ctime>
 #include "parser.h"
-#include "ppsolver.h"
 #include "rgsolver.h"
-
-namespace rg = RectGrad;
 
 int main(int argc, char *argv[]) {
     // parsing command line arguments
@@ -59,14 +56,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Process any additional arguments that were not option flags.
-    for ( int index = optind; index < argc; index++ ) {
-        std::cout << "Non-option argument " << argv[index] << std::endl;
-    }
-
     // parse input file and config file
-    rg::Parser parser;
-    rg::GlobalSolver solver;
+    Parser parser;
+    GlobalSolver solver;
     if ( !parser.read_input(inputFileName) ) {
         std::cout << "[GlobalSolver] ERROR: Input file does not exist." << std::endl;
         return -1;
