@@ -195,7 +195,7 @@ void GlobalSolver::currentPosition2txt(std::string file_name) {
 }
 
 void GlobalSolver::generateCluster() {
-    std::cout << "[GlobalSolver] Note: Generating clusters." << std::endl;
+    std::cout << "[GlobalSolver] Note: Generating clusters..." << std::endl;
     Cluster cluster(this->connectionList);
     cluster.louvain();
     std::vector<std::vector<GlobalModule *>> moduleCluster = cluster.getCluster();
@@ -205,8 +205,8 @@ void GlobalSolver::generateCluster() {
             for ( int k = j + 1; k < moduleCluster[i].size(); ++k ) {
                 mod1 = moduleCluster[i][j];
                 mod2 = moduleCluster[i][k];
-                mod1->addConnection(std::vector<GlobalModule *> { mod2 }, 0.5 * this->connectNormalize);
-                mod2->addConnection(std::vector<GlobalModule *> { mod1 }, 0.5 * this->connectNormalize);
+                mod1->addConnection(std::vector<GlobalModule *> { mod2 }, 0.3 / this->connectNormalize);
+                mod2->addConnection(std::vector<GlobalModule *> { mod1 }, 0.3 / this->connectNormalize);
             }
         }
     }
