@@ -9,15 +9,6 @@
 #include <sstream>
 #include <unordered_set>
 
-struct ConnectionInfo {
-    std::vector<std::string> modules;
-    std::vector<GlobalModule *> modulePtrs;
-    int value;
-    ConnectionInfo(const std::vector<std::string> &modules, int value) {
-        this->modules = modules;
-        this->value = value;
-    }
-};
 
 class Parser {
 private:

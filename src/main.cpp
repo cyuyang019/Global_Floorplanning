@@ -69,6 +69,9 @@ int main(int argc, char *argv[]) {
     solver.readFloorplan(parser);
     solver.readConfig(parser, punishmentArg, maxAspectRatioArg);
 
+    // generate clusters and pack them together
+    // solver.generateCluster();
+
     // Start measuring CPU time
     struct timespec start, end;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);

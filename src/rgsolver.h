@@ -3,6 +3,7 @@
 
 #include "globmodule.h"
 #include "parser.h"
+#include "cluster.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -46,6 +47,7 @@ public:
     void addConnection(const std::vector<std::string> &in_modules, double in_value);
     void readFloorplan(Parser &parser);
     void readConfig(Parser &parser, std::string punishmentArg, std::string maxAspectRatioArg);
+    void generateCluster();
     void calcGradient();
     void gradientDescent(double lr, bool squeeze = false);
     void checkShapeConstraint();

@@ -163,7 +163,7 @@ void GlobalSolver::readConfig(Parser &parser, std::string punishmentArg, std::st
         double area = sameShapeMods[i][0]->area;
         for ( GlobalModule *mod : sameShapeMods[i] ) {
             if ( std::abs(mod->area - area) > 1e-5 ) {
-                std::cout << "[GlobalSolver] Warning: Modules with shape constraint should have same area.\n";
+                std::cout << "[GlobalSolver] Warning: Modules with shape constraint should have same area." << std::endl;
             }
         }
     }
@@ -192,6 +192,24 @@ void GlobalSolver::currentPosition2txt(std::string file_name) {
         ostream << conn->value << std::endl;
     }
     ostream.close();
+}
+
+void GlobalSolver::generateCluster() {
+    std::cout << "[GlobalSolver] Note: Generating clusters." << std::endl;
+    Cluster cluster(this->connectionList);
+    cluster.louvain();
+    std::vector<std::vector<GlobalModule *>> moduleCluster = cluster.getCluster();
+    GlobalModule *mod1, *mod2;
+    for ( int i = 0; i < moduleCluster.size(); ++i ) {
+        for ( int j = 0; j < moduleCluster[i].size() - 1; ++j ) {
+            for ( int k = j + 1; k < moduleCluster[i].size(); ++k ) {
+                mod1 = moduleCluster[i][j];
+                mod2 = moduleCluster[i][k];
+                mod1->addConnection(std::vector<GlobalModule *> { mod2 }, 0.5 * this->connectNormalize);
+                mod2->addConnection(std::vector<GlobalModule *> { mod1 }, 0.5 * this->connectNormalize);
+            }
+        }
+    }
 }
 
 double GlobalSolver::calcDeadspace() {
