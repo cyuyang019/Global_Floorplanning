@@ -4,7 +4,7 @@ Cluster::Cluster(std::vector<ConnectionInfo *> connectionList) {
     for ( ConnectionInfo *conn : connectionList ) {
         std::vector<GlobalModule *> modPtrs = conn->modulePtrs;
         std::sort(modPtrs.begin(), modPtrs.end());
-        double weight = ( double ) conn->value / modPtrs.size();
+        double weight = ( double ) conn->value / ( modPtrs.size() - 1 );
         std::pair< GlobalModule *, GlobalModule *> modPair;
         for ( int i = 0; i < modPtrs.size() - 1; ++i ) {
             this->modules.emplace(modPtrs[i]);
@@ -20,7 +20,7 @@ Cluster::Cluster(std::vector<ConnectionInfo *> connectionList) {
         }
         this->modules.emplace(modPtrs.back());
     }
-    
+
     int c = 0;
     for ( GlobalModule *mod : this->modules ) {
         this->k[mod] = 0;
@@ -54,7 +54,7 @@ double Cluster::calculateModularity() {
     }
 
     double modularity = 0;
-    for ( const std::pair<int, double> &inner: weightInCommunities) {
+    for ( const std::pair<int, double> &inner : weightInCommunities ) {
         int community = inner.first;
         double sum_in = inner.second;
         double sum_tot = 0;
