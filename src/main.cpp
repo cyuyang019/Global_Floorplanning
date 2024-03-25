@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
         solver.calcGradient();
         solver.gradientDescent(lr);
     }
+    // solver.currentPosition2txt("animation/51.txt");
 
     // Stop measuring CPU time
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);

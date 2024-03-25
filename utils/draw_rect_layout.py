@@ -59,7 +59,10 @@ window_width = int(f[1].split(" ")[0])
 window_height = int(f[1].split(" ")[1])
 aspect_ratio = window_height / window_width
 
-png_size = (16, 15*aspect_ratio)
+h = 15*aspect_ratio
+if int(h*100) % 2:
+    h += 0.01
+png_size = (16, h)
 fig = plt.figure(figsize=png_size)
 
 ax = fig.add_subplot(111)
