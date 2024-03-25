@@ -1,1 +1,1 @@
-punishment 6.0
+punishment 6.4
