@@ -1,1 +1,2 @@
 punishment 0.004699
+inflation 0.01

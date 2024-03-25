@@ -23,7 +23,7 @@ Parser::~Parser() {
     }
 }
 
-bool Parser::read_input(std::string file_name) {
+bool Parser::parseInput(std::string file_name) {
     std::ifstream istream(file_name);
     std::istringstream ss;
     std::string line;
@@ -180,7 +180,7 @@ ConnectionInfo *Parser::getConnection(int index) {
 //      Parse Config File
 // ============================
 
-bool Parser::read_config(std::string file_name) {
+bool Parser::parseConfig(std::string file_name) {
     std::ifstream istream(file_name);
     std::istringstream ss;
     std::string line, header;
@@ -204,6 +204,12 @@ bool Parser::read_config(std::string file_name) {
         else if ( header == "lr" ) {
             ss >> this->lr;
             // std::cout << "lr " << this->lr << std::endl;
+        }
+        else if ( header == "inflation" ) {
+            ss >> this->inflationRatio;
+            std::string dump;
+            ss >> dump;
+            this->dumpInflation = ( dump == "--dump" );
         }
         else if ( header == "shape_constraint" ) {
             int num;
@@ -255,6 +261,20 @@ double Parser::getLearnRate() {
         return this->lr;
     }
     return -1;
+}
+
+double Parser::getInflationRatio() {
+    if ( this->configExists ) {
+        return this->inflationRatio;
+    }
+    return -1;
+}
+
+bool Parser::getDumpInflation() {
+    if ( this->configExists ) {
+        return this->dumpInflation;
+    }
+    return false;
 }
 
 std::vector< std::vector<std::string> > Parser::getShapeConstraints() {

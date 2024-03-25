@@ -18,16 +18,13 @@ void GlobalModule::addConnection(const std::vector<GlobalModule *> &in_modules, 
     this->connections.push_back(nc);
 }
 
-void GlobalModule::updateCord(int DieWidth, int DieHeight, double sizeScalar) {
+void GlobalModule::updateCord(int DieWidth, int DieHeight) {
     if ( this->fixed ) {
         return;
     }
 
-    // this->x = (int) ( std::round(centerX - width * sizeScalar / 2.) );
-    // this->y = (int) ( std::round(centerY - height * sizeScalar / 2.) );
-
-    this->x = centerX - width * sizeScalar / 2.;
-    this->y = centerY - height * sizeScalar / 2.;
+    this->x = centerX - width / 2.;
+    this->y = centerY - height / 2.;
 
     if ( this->x < 0 ) {
         this->x = 0;
@@ -41,9 +38,6 @@ void GlobalModule::updateCord(int DieWidth, int DieHeight, double sizeScalar) {
     else if ( this->y > DieHeight - this->height ) {
         this->y = DieHeight - this->height;
     }
-
-    this->centerX = this->x + this->width * sizeScalar / 2.;
-    this->centerY = this->y + this->height * sizeScalar / 2.;
 
     // std::cout << this->name << " " << this->width << " , " << this->height << std::endl;
     // std::cout << this->centerX << " , " << this->centerY << std::endl;

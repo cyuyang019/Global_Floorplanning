@@ -171,7 +171,7 @@ void GlobalSolver::readConfig(Parser &parser, std::string punishmentArg, std::st
 
 void GlobalSolver::currentPosition2txt(std::string file_name) {
     for ( GlobalModule *mod : modules ) {
-        mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight, 1.);
+        mod->updateCord(( int ) this->DieWidth, ( int ) this->DieHeight);
     }
     std::ofstream ostream(file_name);
     ostream << "BLOCK " << moduleNum << " CONNECTION " << connectionNum << std::endl;
@@ -464,28 +464,29 @@ void GlobalSolver::roundToInteger() {
         if ( mod->fixed ) {
             continue;
         }
+        double modArea = ( mod->area > mod->currentArea ) ? ( double ) mod->area : mod->currentArea;
         if ( DieWidth > DieHeight ) {
             mod->width = std::round(mod->width);
-            mod->height = std::ceil(mod->area / mod->width);
+            mod->height = std::ceil(modArea / mod->width);
             if ( mod->height / mod->width > maxAspectRatio ) {
                 mod->height -= 1.;
-                mod->width = std::ceil(mod->area / mod->height);
+                mod->width = std::ceil(modArea / mod->height);
             }
             else if ( mod->height / mod->width < 1 / maxAspectRatio ) {
                 mod->width -= 1.;
-                mod->height = std::ceil(mod->area / mod->width);
+                mod->height = std::ceil(modArea / mod->width);
             }
         }
         else {
             mod->height = std::round(mod->height);
-            mod->width = std::ceil(mod->area / mod->height);
+            mod->width = std::ceil(modArea / mod->height);
             if ( mod->height / mod->width > maxAspectRatio ) {
                 mod->height -= 1.;
-                mod->width = std::ceil(mod->area / mod->height);
+                mod->width = std::ceil(modArea / mod->height);
             }
             else if ( mod->height / mod->width < 1 / maxAspectRatio ) {
                 mod->width -= 1.;
-                mod->height = std::ceil(mod->area / mod->width);
+                mod->height = std::ceil(modArea / mod->width);
             }
         }
     }
@@ -686,9 +687,6 @@ void GlobalSolver::setMaxMovement(double ratio) {
 }
 
 bool GlobalSolver::hasOverlap() {
-    for ( GlobalModule *mod : modules ) {
-        mod->updateCord(DieWidth, DieHeight, 1.);
-    }
     overlapped = false;
     for ( int i = 0; i < moduleNum - 1; i++ ) {
         for ( int j = i + 1; j < moduleNum; j++ ) {
@@ -708,83 +706,6 @@ bool GlobalSolver::hasOverlap() {
         }
     }
     return overlapped;
-}
-
-void GlobalSolver::squeezeToFit() {
-    for ( GlobalModule *mod : modules ) {
-        mod->updateCord(DieWidth, DieHeight, 1.);
-    }
-
-    std::vector<double> squeezeWidthVec(this->moduleNum, 0);
-    std::vector<double> squeezeHeightVec(this->moduleNum, 0);
-
-    for ( int i = 0; i < this->moduleNum; ++i ) {
-        GlobalModule *curModule = modules[i];
-        if ( curModule->fixed ) {
-            continue;
-        }
-        double totalOverlapWidth = 0.0;
-        double totalOverlapHeight = 0.0;
-        for ( GlobalModule *tarModule : modules ) {
-            if ( curModule == tarModule ) {
-                continue;
-            }
-            double overlappedWidth, overlappedHeight;
-
-            double mod1Width = curModule->width;
-            double mod2Width = tarModule->width;
-            double mod1Height = curModule->height;
-            double mod2Height = tarModule->height;
-
-            double max_xl = std::max(curModule->centerX - mod1Width / 2., tarModule->centerX - mod2Width / 2.);
-            double min_xr = std::min(curModule->centerX + mod1Width / 2., tarModule->centerX + mod2Width / 2.);
-            double max_yd = std::max(curModule->centerY - mod1Height / 2., tarModule->centerY - mod2Height / 2.);
-            double min_yu = std::min(curModule->centerY + mod1Height / 2., tarModule->centerY + mod2Height / 2.);
-
-            overlappedWidth = min_xr - max_xl;
-            overlappedHeight = min_yu - max_yd;
-
-            if ( overlappedWidth > 0. && overlappedHeight > 0. ) {
-                totalOverlapWidth += overlappedWidth;
-                totalOverlapHeight += overlappedHeight;
-            }
-        }
-        if ( totalOverlapWidth > 0. && totalOverlapHeight > 0. ) {
-            double aspectRatio = ( double ) totalOverlapHeight / totalOverlapWidth;
-            if ( aspectRatio > 10. ) {
-                squeezeWidthVec[i] = totalOverlapWidth;
-            }
-            else if ( aspectRatio < 0.1 ) {
-                squeezeHeightVec[i] = totalOverlapHeight;
-            }
-            // else {
-            //     aspectRatio = 0.2 * std::atan(aspectRatio - 1) + 1;
-            //     if ( aspectRatio > 2. ) {
-            //         aspectRatio = 2.;
-            //     }
-            //     else if ( aspectRatio < 0.5 ) {
-            //         aspectRatio = 0.5;
-            //     }
-            //     curModule->width = std::ceil(std::sqrt(curModule->area / aspectRatio));
-            //     curModule->height = std::ceil(std::sqrt(curModule->area * aspectRatio));
-            // }
-        }
-    }
-    for ( int i = 0; i < this->moduleNum; ++i ) {
-        GlobalModule *curModule = modules[i];
-        if ( curModule->fixed ) {
-            continue;
-        }
-        if ( squeezeWidthVec[i] > 0. ) {
-            curModule->setWidth(curModule->width - squeezeWidthVec[i]);
-        }
-        else if ( squeezeHeightVec[i] > 0. ) {
-            curModule->setHeight(curModule->height - squeezeHeightVec[i]);
-        }
-        // assert(curModule->height * curModule->width >= curModule->area);
-        // assert(0.5 <= curModule->height / curModule->width && curModule->height / curModule->width <= 2);
-        curModule->updateCord(DieWidth, DieHeight, 1.);
-    }
 }
 
 bool GlobalSolver::isAreaLegal() {

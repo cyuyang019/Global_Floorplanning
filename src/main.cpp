@@ -59,11 +59,11 @@ int main(int argc, char *argv[]) {
     // parse input file and config file
     Parser parser;
     GlobalSolver solver;
-    if ( !parser.read_input(inputFileName) ) {
+    if ( !parser.parseInput(inputFileName) ) {
         std::cout << "[GlobalSolver] ERROR: Input file does not exist." << std::endl;
         return -1;
     }
-    if ( !parser.read_config(configFileName) ) {
+    if ( !parser.parseConfig(configFileName) ) {
         std::cout << "[GlobalSolver] Note: Config file does not exist. Use default configuration." << std::endl;
     }
     solver.readFloorplan(parser);
@@ -98,12 +98,46 @@ int main(int argc, char *argv[]) {
         // solver.currentPosition2txt("animation/" + std::to_string(phase) + ".txt");
     }
 
-    solver.roundToInteger();
+    // inflate soft modules
+    bool dumpInflation = parser.getDumpInflation();
+    double inflationRatio = parser.getInflationRatio();
+    std::cout << std::endl;
+    if ( inflationRatio > 0. ) {
+        std::cout << "[GlobalSolver] Note: Inflation Ratio is set to " << inflationRatio << std::endl;
+        int phase = inflationRatio / 0.02 + 1;
+        for ( int p = 1; p <= phase; ++p ) {
+            if ( p > 1 ) {
+                std::cout << "\r";
+            }
+            std::cout << "[GlobalSolver] Inflation " << std::setw(2) << p << " / " << std::setw(2) << phase << std::flush;
+            if ( p == phase ) {
+                solver.setSizeScalar(( 1 + inflationRatio ) * ( 1 + inflationRatio ), true);
+            }
+            else {
+                solver.setSizeScalar(( 1 + p * 0.02 ) * ( 1 + p * 0.02 ), true);
+            }
+            solver.resetOptimizer();
+            for ( int i = 0; i < iteration; ++i ) {
+                solver.calcGradient();
+                solver.gradientDescent(lr, true);
+            }
+            solver.checkShapeConstraint();
+        }
+    }
 
-    solver.resetOptimizer();
-    for ( int i = 0; i < 1000; i++ ) {
-        solver.calcGradient();
-        solver.gradientDescent(lr);
+    if ( !dumpInflation && inflationRatio > 0. ) {
+        // resize soft modules to original sizes
+        solver.setSizeScalar(1.);
+        solver.roundToInteger();
+    }
+    else {
+        // fine-tune after rounding to integer
+        solver.roundToInteger();
+        solver.resetOptimizer();
+        for ( int i = 0; i < 1000; i++ ) {
+            solver.calcGradient();
+            solver.gradientDescent(lr);
+        }
     }
     // solver.currentPosition2txt("animation/51.txt");
 

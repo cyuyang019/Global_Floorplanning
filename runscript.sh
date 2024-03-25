@@ -11,9 +11,9 @@ fi
 Case=$(echo "$1" | cut -c 1)
 
 if [ $Case == "c" ]; then
-    python3 utils/draw_rect_layout.py outputs/$1-output.txt outputs/$1.png -l
+    python3 utils/draw_rect_layout.py outputs/$1-output.txt img/$1.png -l
 else
-    python3 utils/draw_rect_layout.py outputs/$1-output.txt outputs/$1.png
+    python3 utils/draw_rect_layout.py outputs/$1-output.txt img/$1.png
 fi
 
 python3 utils/record_parameter.py $1

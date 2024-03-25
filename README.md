@@ -21,9 +21,11 @@ This tool is for global floorplanning stage in VLSI floorplanning.
    make
    ```
 
-3. Create 3 directories:
+3. Create 4 directories:
 
 `outputs` for storing output floorplan
+
+`img` for storing floorplan's image
 
 `log` for recording log file
 

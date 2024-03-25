@@ -61,7 +61,6 @@ public:
     void setMaxAspectRatio(double aspect_ratio);
     void setMaxMovement(double ratio = 0.001);
     bool hasOverlap();
-    void squeezeToFit();
     bool isAreaLegal();
     bool isAspectRatioLegal();
     void resetOptimizer();

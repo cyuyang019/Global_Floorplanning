@@ -22,12 +22,14 @@ private:
     std::string punishment;
     double max_aspect_ratio;
     double lr;
+    double inflationRatio;
+    bool dumpInflation;
     std::vector< std::vector<std::string> > ShapeConstraintMods;
 public:
     Parser();
     ~Parser();
-    bool read_input(std::string file_name);
-    bool read_config(std::string file_name);
+    bool parseInput(std::string file_name);
+    bool parseConfig(std::string file_name);
     // info of floorplan
     int getDieWidth();
     int getDieHeight();
@@ -41,6 +43,8 @@ public:
     std::string getPunishment();
     double getMaxAspectRatio();
     double getLearnRate();
+    double getInflationRatio();
+    bool getDumpInflation();
     std::vector< std::vector<std::string> > getShapeConstraints();
 };
 

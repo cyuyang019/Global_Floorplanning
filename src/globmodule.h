@@ -42,7 +42,7 @@ public:
 
     // Member function
     void addConnection(const std::vector<GlobalModule *> &in_modules, double in_value);
-    void updateCord(int DieWidth, int DieHeight, double sizeScalar);
+    void updateCord(int DieWidth, int DieHeight);
     virtual void setWidth(double width);
     virtual void setHeight(double height);
     virtual void setMaxAspectRatio(double aspect_ratio);
